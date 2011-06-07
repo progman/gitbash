@@ -1,0 +1,32 @@
+#0.1.1
+FLAG_COLOR='false';
+function get_git_branch()
+{
+    if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+    then
+        git branch &> /dev/null;
+        if [ "${?}" == "0" ];
+        then
+            if [ "$(git status --porcelain | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
+            then
+                GIT_UNCOMMITED="(+)";
+            fi
+	    if [ "${FLAG_COLOR}" != "false" ];
+	    then
+		echo -en "\033[32m";
+	    fi
+            echo -en "[${GIT_UNCOMMITED}git::$(git branch | grep '*' | sed -e 's/^*\ //g')]";
+	    if [ "${FLAG_COLOR}" != "false" ];
+	    then
+		echo -en "\033[0m";
+	    fi
+	    echo -en " ";
+        fi
+    fi
+}
+if [ "${USER}" == "root" ];
+then
+    export PS1='$(get_git_branch)\u@\h:\w# ';
+else
+    export PS1='$(get_git_branch)\u@\h:\w$ ';
+fi
