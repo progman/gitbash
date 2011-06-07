@@ -1,0 +1,5 @@
+Git for bash
+
+1) Copy file .gitbash in your home dir
+2) Add in your .bashrc line "source .gitbash"
+3) cd in git repo
