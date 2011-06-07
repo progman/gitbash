@@ -1,5 +1,6 @@
 Git for bash
 
-1) Copy file .gitbash in your home dir
-2) Add in your .bashrc line "source .gitbash"
-3) cd in git repo
+1) git clone git://github.com/progman/gitbash.git
+2) Copy file .gitbash in your home dir
+3) Add in your .bashrc line "source .gitbash"
+4) cd in git repo
