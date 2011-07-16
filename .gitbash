@@ -1,10 +1,11 @@
-# 0.1.1
+# 0.1.2
 # Alexey Potehin http://www.gnuplanet.ru/doc/cv
 # git clone git://github.com/progman/gitbash.git
 
-FLAG_COLOR='false';
 function get_git_branch()
 {
+    FLAG_COLOR='false';
+
     if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
     then
         git branch &> /dev/null;
