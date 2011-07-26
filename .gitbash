@@ -1,4 +1,4 @@
-# 0.1.2
+# 0.1.3
 # Alexey Potehin http://www.gnuplanet.ru/doc/cv
 # git clone git://github.com/progman/gitbash.git
 
@@ -8,24 +8,24 @@ function get_git_branch()
 
     if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
     then
-        git branch &> /dev/null;
-        if [ "${?}" == "0" ];
-        then
-            if [ "$(git status --porcelain | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
-            then
-                GIT_UNCOMMITED="(+)";
-            fi
+	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" != "" ];
+	then
+	    if [ "$(git status --porcelain | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
+	    then
+		GIT_UNCOMMITED="(+)";
+	    fi
 	    if [ "${FLAG_COLOR}" != "false" ];
 	    then
 		echo -en "\033[32m";
 	    fi
-            echo -en "[${GIT_UNCOMMITED}git::$(git branch | grep '*' | sed -e 's/^*\ //g')]";
+	    echo -en "[${GIT_UNCOMMITED}git::${BRANCH}]";
 	    if [ "${FLAG_COLOR}" != "false" ];
 	    then
 		echo -en "\033[0m";
 	    fi
 	    echo -en " ";
-        fi
+	fi
     fi
 }
 if [ "${USER}" == "root" ];
