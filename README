@@ -1,6 +1,17 @@
 Git for bash
 
-1) Get this (git clone git://github.com/progman/gitbash.git)
-2) Copy file .gitbash in your home dir (cp .gitbash ~)
-3) Add in your .bashrc line "source ~/.gitbash"
-4) cd in git repo
+
+Install and save this repo (for updates)
+
+1) Get this                            : git clone git://github.com/progman/gitbash.git ~/.gitbash.git
+2) Add this in your .bashrc line       : echo "source ~/.gitbash.git/.gitbash" >> ~/.bashrc
+3) cd in your git repo
+
+
+Install and kill this repo (for minimize size)
+
+1) Get this                            : git clone git://github.com/progman/gitbash.git ~/.gitbash.git
+2) Copy file .gitbash in your home dir : cp ~/.gitbash.git/.gitbash ~
+3) Add this in your .bashrc line       : echo "source ~/.gitbash" >> ~/.bashrc
+4) Kill this repo                      : rm -rf ~/.gitbash.git
+5) cd in your git repo
