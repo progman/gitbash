@@ -13,7 +13,7 @@ function get_git_branch()
 	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
 	if [ "${BRANCH}" != "" ];
 	then
-	    if [ "$(git status --porcelain | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
+	    if [ "$(git status --porcelain --ignore-submodules | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
 	    then
 		GIT_UNCOMMITED="(+)";
 	    fi
