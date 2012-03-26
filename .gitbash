@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.1.6
+# 0.1.8
 # Alexey Potehin http://www.gnuplanet.ru/doc/cv
 #
 # git clone git://github.com/progman/gitbash.git ~/.gitbash.git
@@ -20,12 +20,13 @@ function get_git_branch()
 {
     FLAG_COLOR='false';
 
-    if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+    if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ] && [ "$(which mktemp)" != "" ];
     then
 	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
 	if [ "${BRANCH}" != "" ];
 	then
-	    if [ "$(git status --porcelain --ignore-submodules | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
+	    TMP=$(mktemp);
+	    if [ "$(git status --porcelain --ignore-submodules 2>${TMP} | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
 	    then
 		GIT_UNCOMMITED="(+)";
 	    fi
@@ -33,12 +34,17 @@ function get_git_branch()
 	    then
 		echo -en "\033[32m";
 	    fi
+	    if [ "$(cat ${TMP})" != "" ];
+	    then
+		GIT_UNCOMMITED="(?)";
+	    fi
 	    echo -en "[${GIT_UNCOMMITED}git::${BRANCH}]";
 	    if [ "${FLAG_COLOR}" != "false" ];
 	    then
 		echo -en "\033[0m";
 	    fi
 	    echo -en " ";
+	    rm -rf "${TMP}";
 	fi
     fi
 }
