@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.1.8
+# 0.1.9
 # Alexey Potehin http://www.gnuplanet.ru/doc/cv
 #
 # git clone git://github.com/progman/gitbash.git ~/.gitbash.git
@@ -14,6 +14,32 @@ function git_merge()
     fi
     echo "git merge --no-ff ${1} -m 'merge branch \"${1}\"'";
     git merge --no-ff ${1} -m "merge branch \"${1}\"";
+}
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_pull()
+{
+    if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+    then
+	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" != "" ];
+	then
+	    echo "git pull origin ${BRANCH}";
+	    git pull origin "${BRANCH}";
+	fi
+    fi
+}
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_push()
+{
+    if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+    then
+	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" != "" ];
+	then
+	    echo "git push origin ${BRANCH}";
+	    git push origin "${BRANCH}";
+	fi
+    fi
 }
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function get_git_branch()
