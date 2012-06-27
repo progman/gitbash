@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.1.9
+# 0.2.0
 # Alexey Potehin http://www.gnuplanet.ru/doc/cv
 #
 # git clone git://github.com/progman/gitbash.git ~/.gitbash.git
@@ -7,78 +7,78 @@
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_merge()
 {
-    if [ "${1}" == "" ];
-    then
-	echo "error: missing branch name";
-	return;
-    fi
-    echo "git merge --no-ff ${1} -m 'merge branch \"${1}\"'";
-    git merge --no-ff ${1} -m "merge branch \"${1}\"";
+	if [ "${1}" == "" ];
+	then
+		echo "error: missing branch name";
+		return;
+	fi
+	echo "git merge --no-ff ${1} -m 'merge branch \"${1}\"'";
+	git merge --no-ff ${1} -m "merge branch \"${1}\"";
 }
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_pull()
 {
-    if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
-    then
-	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-	if [ "${BRANCH}" != "" ];
+	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
 	then
-	    echo "git pull origin ${BRANCH}";
-	    git pull origin "${BRANCH}";
+		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+		if [ "${BRANCH}" != "" ];
+		then
+			echo "git pull origin ${BRANCH}";
+			git pull origin "${BRANCH}";
+		fi
 	fi
-    fi
 }
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_push()
 {
-    if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
-    then
-	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-	if [ "${BRANCH}" != "" ];
+	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
 	then
-	    echo "git push origin ${BRANCH}";
-	    git push origin "${BRANCH}";
+		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+		if [ "${BRANCH}" != "" ];
+		then
+			echo "git push origin ${BRANCH}";
+			git push origin "${BRANCH}";
+		fi
 	fi
-    fi
 }
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function get_git_branch()
 {
-    FLAG_COLOR='false';
+	FLAG_COLOR='false';
 
-    if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ] && [ "$(which mktemp)" != "" ];
-    then
-	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-	if [ "${BRANCH}" != "" ];
+	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ] && [ "$(which mktemp)" != "" ];
 	then
-	    TMP=$(mktemp);
-	    if [ "$(git status --porcelain --ignore-submodules 2>${TMP} | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
-	    then
-		GIT_UNCOMMITED="(+)";
-	    fi
-	    if [ "${FLAG_COLOR}" != "false" ];
-	    then
-		echo -en "\033[32m";
-	    fi
-	    if [ "$(cat ${TMP})" != "" ];
-	    then
-		GIT_UNCOMMITED="(?)";
-	    fi
-	    echo -en "[${GIT_UNCOMMITED}git::${BRANCH}]";
-	    if [ "${FLAG_COLOR}" != "false" ];
-	    then
-		echo -en "\033[0m";
-	    fi
-	    echo -en " ";
-	    rm -rf "${TMP}";
+		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+		if [ "${BRANCH}" != "" ];
+		then
+			TMP=$(mktemp);
+			if [ "$(git status --porcelain --ignore-submodules 2>${TMP} | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
+			then
+				GIT_UNCOMMITED="(+)";
+			fi
+			if [ "${FLAG_COLOR}" != "false" ];
+			then
+				echo -en "\033[32m";
+			fi
+			if [ "$(cat ${TMP})" != "" ];
+			then
+				GIT_UNCOMMITED="(?)";
+			fi
+			echo -en "[${GIT_UNCOMMITED}git::${BRANCH}]";
+			if [ "${FLAG_COLOR}" != "false" ];
+			then
+				echo -en "\033[0m";
+			fi
+			echo -en " ";
+			rm -rf "${TMP}";
+		fi
 	fi
-    fi
 }
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 if [ "${USER}" == "root" ];
 then
-    export PS1='$(get_git_branch)\u@\h:\w# ';
+	export PS1='$(get_git_branch)\u@\h:\w# ';
 else
-    export PS1='$(get_git_branch)\u@\h:\w$ ';
+	export PS1='$(get_git_branch)\u@\h:\w$ ';
 fi
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
