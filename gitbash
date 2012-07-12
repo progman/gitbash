@@ -1,9 +1,9 @@
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.2.0
+# 0.2.1
 # Alexey Potehin http://www.gnuplanet.ru/doc/cv
 #
-# git clone git://github.com/progman/gitbash.git ~/.gitbash.git
-# echo "source ~/.gitbash.git/.gitbash" >> ~/.bashrc
+# git clone git://github.com/progman/gitbash.git ~/.config/gitbash.git
+# echo "source ~/.config/gitbash.git/gitbash" >> ~/.bashrc
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_merge()
 {
