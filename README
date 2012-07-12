@@ -3,12 +3,12 @@ Git for bash
 
 Install this
 
-1) Get this                         :    git clone git://github.com/progman/gitbash.git ~/.config/gitbash.git
-2) Add this in your .bashrc line    :    echo "source ~/.config/gitbash.git/gitbash;" >> ~/.bashrc
-3) Use this (cd in your git repo)
+1) git clone git://github.com/progman/gitbash.git ~/.config/gitbash.git
+2) echo "source ~/.config/gitbash.git/gitbash;" >> ~/.bashrc
+3) Use this (cd in something git repo)
 
 
 Update this
 
-1) Go to this repo                  :    cd ~/.config/gitbash.git/
-2) Update this repo                 :    git pull
+1) cd ~/.config/gitbash.git/
+2) git pull
