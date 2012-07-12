@@ -1,4 +1,4 @@
-Git for bash
+Git for bash  v0.2.1
 
 
 Install this
@@ -12,3 +12,5 @@ Update this
 
 1) cd ~/.config/gitbash.git/
 2) git pull
+
+
