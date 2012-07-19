@@ -93,6 +93,20 @@ function git_commit()
 	fi
 }
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_url()
+{
+	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+	then
+#		echo "git config -l | grep remote.origin.url";
+		URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g');
+		if [ "${URL}" != "" ];
+		then
+			echo "git clone ${URL}";
+			echo "";
+		fi
+	fi
+}
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 if [ "${USER}" == "root" ];
 then
 	export PS1='$(get_git_branch)\u@\h:\w# ';
