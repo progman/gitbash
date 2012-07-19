@@ -1,9 +1,42 @@
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.2.1
+# 0.2.2
 # Alexey Potehin http://www.gnuplanet.ru/doc/cv
 #
 # git clone git://github.com/progman/gitbash.git ~/.config/gitbash.git
 # echo "source ~/.config/gitbash.git/gitbash" >> ~/.bashrc
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function get_git_branch()
+{
+	FLAG_COLOR='false';
+
+	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ] && [ "$(which mktemp)" != "" ];
+	then
+		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+		if [ "${BRANCH}" != "" ];
+		then
+			TMP=$(mktemp);
+			if [ "$(git status --porcelain --ignore-submodules 2>${TMP} | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
+			then
+				GIT_UNCOMMITED="(+)";
+			fi
+			if [ "${FLAG_COLOR}" != "false" ];
+			then
+				echo -en "\033[32m";
+			fi
+			if [ "$(cat ${TMP})" != "" ];
+			then
+				GIT_UNCOMMITED="(?)";
+			fi
+			echo -en "[${GIT_UNCOMMITED}git::${BRANCH}]";
+			if [ "${FLAG_COLOR}" != "false" ];
+			then
+				echo -en "\033[0m";
+			fi
+			echo -en " ";
+			rm -rf "${TMP}";
+		fi
+	fi
+}
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_merge()
 {
@@ -42,39 +75,6 @@ function git_push()
 	fi
 }
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-function get_git_branch()
-{
-	FLAG_COLOR='false';
-
-	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ] && [ "$(which mktemp)" != "" ];
-	then
-		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-		if [ "${BRANCH}" != "" ];
-		then
-			TMP=$(mktemp);
-			if [ "$(git status --porcelain --ignore-submodules 2>${TMP} | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
-			then
-				GIT_UNCOMMITED="(+)";
-			fi
-			if [ "${FLAG_COLOR}" != "false" ];
-			then
-				echo -en "\033[32m";
-			fi
-			if [ "$(cat ${TMP})" != "" ];
-			then
-				GIT_UNCOMMITED="(?)";
-			fi
-			echo -en "[${GIT_UNCOMMITED}git::${BRANCH}]";
-			if [ "${FLAG_COLOR}" != "false" ];
-			then
-				echo -en "\033[0m";
-			fi
-			echo -en " ";
-			rm -rf "${TMP}";
-		fi
-	fi
-}
-#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_bash_update()
 {
 	CUR_PWD=${PWD};
@@ -82,6 +82,15 @@ function git_bash_update()
 	cat README;
 	git_pull;
 	cd "${CUR_PWD}";
+}
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_commit()
+{
+	if [ "$(which git)" != "" ];
+	then
+		echo "git commit -a";
+		git commit -a";
+	fi
 }
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 if [ "${USER}" == "root" ];
