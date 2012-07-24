@@ -88,8 +88,14 @@ function git_commit()
 {
 	if [ "$(which git)" != "" ];
 	then
-		echo "git commit -a";
-		git commit -a;
+		if [ "${1}" == "" ];
+		then
+			echo "git commit -a -m 'update'";
+			git commit -a -m 'update';
+		else
+			echo "git commit -a -m \"${1}\"";
+			git commit -a -m "${1}";
+		fi
 	fi
 }
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
