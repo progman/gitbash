@@ -1,0 +1,27 @@
+Functions gitbash
+	git_url              - view remote origin url
+	git_commit [MESSAGE] - git commit -a
+	git_pull             - git pull current branch
+	git_push             - git push current branch
+	git_sync             - run git_pull and git_push
+	git_flush            - run git_commit and git_push
+	git_merge BRANCH     - git merge --no-ff BRANCH
+	gitbash_update       - update gitbash
+	gitbash_help         - this message
+
+Set up git
+	git config --global user.name "progman"
+	git config --global user.email gnuplanet@gmail.com
+	git config --global color.branch auto
+	git config --global color.diff auto
+	git config --global color.interactive auto
+	git config --global color.status auto
+
+Create ssh keys
+	ssh-keygen -t rsa
+
+First push Git repo
+	cd gitbash
+	git remote add origin git@github.com:progman/gitbash.git
+	git push -u origin master
+
