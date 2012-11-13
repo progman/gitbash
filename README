@@ -1,15 +1,8 @@
-Git for bash  v0.2.4
-
+Git for bash  v0.2.5
 
 Install this
 
-1) git clone git://github.com/progman/gitbash.git ~/.config/gitbash
-2) echo "source ~/.config/gitbash/gitbash;" >> ~/.bashrc
-3) Use this (cd in something git repo)
-
-
-Update this
-
-1) cd ~/.config/gitbash/
-2) git pull
+	1) git clone git://github.com/progman/gitbash.git ~/.config/gitbash
+	2) echo "source ~/.config/gitbash/gitbash;" >> ~/.bashrc
+	3) Use this (cd in something git repo)
 
