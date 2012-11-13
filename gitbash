@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.2.5
+# 0.2.6
 # Alexey Potehin http://www.gnuplanet.ru/doc/cv
 #
 # git clone git://github.com/progman/gitbash.git ~/.config/gitbash
@@ -89,7 +89,6 @@ function gitbash_update()
 		cd ~/.config/gitbash.git;
 	fi
 
-	cat README;
 	git_pull;
 	cd "${CUR_PWD}";
 }
@@ -108,21 +107,26 @@ function gitbash_help()
 		cd ~/.config/gitbash.git;
 	fi
 
+	cat README;
 	cat HELP;
 	cd "${CUR_PWD}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_commit()
 {
-	if [ "$(which git)" != "" ];
+	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
 	then
-		if [ "${1}" == "" ];
+		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+		if [ "${BRANCH}" != "" ];
 		then
-			echo "git commit -a -m 'update'";
-			git commit -a -m 'update';
-		else
-			echo "git commit -a -m \"${1}\"";
-			git commit -a -m "${1}";
+			if [ "${1}" == "" ];
+			then
+				echo "git commit -a -m 'update'";
+				git commit -a -m 'update';
+			else
+				echo "git commit -a -m \"${1}\"";
+				git commit -a -m "${1}";
+			fi
 		fi
 	fi
 }
