@@ -4,5 +4,5 @@ Install this
 
 	1) git clone git://github.com/progman/gitbash.git ~/.config/gitbash
 	2) echo "source ~/.config/gitbash/gitbash;" >> ~/.bashrc
-	3) Use this (cd in something git repo)
+	3) Use this: run gitbash_help or enter into any git repository
 
