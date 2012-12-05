@@ -5,7 +5,7 @@ Functions gitbash
 	git_pull             - git pull current branch
 	git_push             - git push current branch
 	git_sync             - run git_pull and git_push
-	git_flush            - run git_commit and git_push
+	git_flush [MESSAGE]  - run git_commit and git_push
 	git_merge BRANCH     - git merge --no-ff BRANCH
 	gitbash_update       - update gitbash
 	gitbash_help         - this message
