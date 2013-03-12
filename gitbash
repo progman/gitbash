@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # 0.2.7
-# Alexey Potehin http://www.gnuplanet.ru/doc/cv
+# Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # git clone git://github.com/progman/gitbash.git ~/.config/gitbash
 # echo "source ~/.config/gitbash/gitbash" >> ~/.bashrc
