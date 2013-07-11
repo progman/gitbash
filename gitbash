@@ -1,9 +1,10 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.2.7
+# 0.2.8
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
-# git clone git://github.com/progman/gitbash.git ~/.config/gitbash
-# echo "source ~/.config/gitbash/gitbash" >> ~/.bashrc
+# $ mkdir -m 0700 ~/.config &> /dev/null;
+# $ git clone git://github.com/progman/gitbash.git ~/.config/gitbash;
+# $ echo "source ~/.config/gitbash/gitbash" >> ~/.bashrc;
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function get_git_branch()
 {
