@@ -3,7 +3,7 @@ Git for bash  v0.2.8
 Install this
 
 	$ mkdir -m 0700 ~/.config &> /dev/null;
-	$ git clone git://github.com/progman/gitbash.git ~/.config/gitbash;
+	$ git clone https://github.com/progman/gitbash.git ~/.config/gitbash;
 	$ echo "source ~/.config/gitbash/gitbash;" >> ~/.bashrc;
 
 Use this
