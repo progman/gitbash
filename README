@@ -1,4 +1,4 @@
-Git for bash  v0.2.9
+Git for bash v0.2.9
 
 Install this
 
@@ -7,4 +7,5 @@ Install this
 	$ echo "source ~/.config/gitbash/gitbash;" >> ~/.bashrc;
 
 Use this
+
 	Run gitbash_help or just enter into any git repository
