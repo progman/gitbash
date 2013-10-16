@@ -1,6 +1,6 @@
 Functions gitbash
 
-	git_url              - view remote origin url
+	git_url [URL]        - view remote origin url
 	git_commit [MESSAGE] - git commit -a
 	git_pull             - git pull current branch
 	git_push             - git push current branch
