@@ -16,7 +16,7 @@ function git_url()
 
 			if [ "${1}" != "" ];
 			then
-				git remote remove origin;
+				git remote remove origin &> /dev/null;
 				git remote add origin "${1}";
 			fi
 
