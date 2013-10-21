@@ -1,6 +1,7 @@
 Functions gitbash
 
 	git_url [URL]        - view remote origin url
+	git_pwd              - view root dir
 	git_commit [MESSAGE] - git commit -a
 	git_pull             - git pull current branch
 	git_push             - git push current branch
