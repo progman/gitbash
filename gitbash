@@ -1,5 +1,6 @@
+#!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.3.2
+# 0.3.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -13,15 +14,13 @@ function git_url()
 		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
 		if [ "${BRANCH}" != "" ];
 		then
-
 			if [ "${1}" != "" ];
 			then
 				git remote remove origin &> /dev/null;
 				git remote add origin "${1}";
 			fi
 
-#			echo "git config -l | grep remote.origin.url";
-			URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g');
+			local URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g');
 			if [ "${URL}" != "" ];
 			then
 				echo "git clone ${URL}";
@@ -38,16 +37,14 @@ function git_pwd()
 		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
 		if [ "${BRANCH}" != "" ];
 		then
-
-			CUR_DIR="${PWD}";
-
-			COMMIT="$(git log 2> /dev/null | head -n 1 | grep commit)";
+			local CUR_DIR="${PWD}";
+			local COMMIT="$(git log 2> /dev/null | head -n 1 | grep commit)";
 
 			while true;
 			do
-				DIR="${PWD}";
+				local DIR="${PWD}";
 				cd ..;
-				COMMIT_NEW="$(git log 2> /dev/null | head -n 1 | grep commit)";
+				local COMMIT_NEW="$(git log 2> /dev/null | head -n 1 | grep commit)";
 
 				if [ "${COMMIT_NEW}" != "${COMMIT}" ];
 				then
@@ -62,12 +59,15 @@ function git_pwd()
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_gc()
 {
-	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ] && [ "$(which du)" != "" ];
 	then
 		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
 		if [ "${BRANCH}" != "" ];
 		then
+			local OLD=$(du -sb | { read a b; echo ${a}; });
 			git gc --aggressive --prune=now &> /dev/null;
+			local NEW=$(du -sb | { read a b; echo ${a}; });
+			echo "${OLD} -> ${NEW}";
 		fi
 	fi
 }
