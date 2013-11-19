@@ -67,8 +67,7 @@ function git_gc()
 		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
 		if [ "${BRANCH}" != "" ];
 		then
-			git gc --aggressive --no-prune &> /dev/null;
-			git repack -ad &> /dev/null;
+			git gc --aggressive --prune=now &> /dev/null;
 		fi
 	fi
 }
