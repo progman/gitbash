@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.3.3
+# 0.3.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -9,100 +9,149 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_url()
 {
-	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
 	then
-		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-		if [ "${BRANCH}" != "" ];
-		then
-			if [ "${1}" != "" ];
-			then
-				git remote remove origin &> /dev/null;
-				git remote add origin "${1}";
-			fi
+		return;
+	fi
 
-			local URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g');
-			if [ "${URL}" != "" ];
-			then
-				echo "git clone ${URL}";
-				echo "";
-			fi
-		fi
+	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" == "" ];
+	then
+		return;
+	fi
+
+	if [ "${1}" != "" ];
+	then
+		git remote remove origin &> /dev/null;
+		git remote add origin "${1}";
+	fi
+
+	local URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g');
+	if [ "${URL}" != "" ];
+	then
+		echo "git clone ${URL}";
+		echo "";
 	fi
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_pwd()
 {
-	if [ "$(which git)" != "" ] && [ "$(which head)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+	if [ "$(which git)" == "" ] || [ "$(which head)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
 	then
-		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-		if [ "${BRANCH}" != "" ];
-		then
-			local CUR_DIR="${PWD}";
-			local COMMIT="$(git log 2> /dev/null | head -n 1 | grep commit)";
-
-			while true;
-			do
-				local DIR="${PWD}";
-				cd ..;
-				local COMMIT_NEW="$(git log 2> /dev/null | head -n 1 | grep commit)";
-
-				if [ "${COMMIT_NEW}" != "${COMMIT}" ];
-				then
-					echo "${DIR}";
-					cd -- "${CUR_DIR}";
-					break;
-				fi
-			done
-		fi
+		return;
 	fi
+
+	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" == "" ];
+	then
+		return;
+	fi
+
+	local CUR_DIR="${PWD}";
+	local COMMIT="$(git log 2> /dev/null | head -n 1 | grep commit)";
+
+	while true;
+	do
+		local DIR="${PWD}";
+		cd ..;
+		local COMMIT_NEW="$(git log 2> /dev/null | head -n 1 | grep commit)";
+
+		if [ "${COMMIT_NEW}" != "${COMMIT}" ];
+		then
+			echo "${DIR}";
+			cd -- "${CUR_DIR}";
+			break;
+		fi
+	done
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_gc()
 {
-	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ] && [ "$(which du)" != "" ];
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which du)" == "" ];
 	then
-		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-		if [ "${BRANCH}" != "" ];
-		then
-			local OLD=$(du -sb | { read a b; echo ${a}; });
-			git gc --aggressive --prune=now &> /dev/null;
-			local NEW=$(du -sb | { read a b; echo ${a}; });
-			echo "${OLD} -> ${NEW}";
-		fi
+		return;
 	fi
+
+
+	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" == "" ];
+	then
+		return;
+	fi
+
+	local OLD=$(du -sb | { read a b; echo ${a}; });
+	git gc --aggressive --prune=now &> /dev/null;
+	local NEW=$(du -sb | { read a b; echo ${a}; });
+	echo "${OLD} -> ${NEW}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function get_git_branch()
 {
-	FLAG_COLOR='false';
+#	local GITBASH_FLAG_COLOR='false';
+#	local GITBASH_FLAG_UNTRACKED='true';
 
-	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ] && [ "$(which mktemp)" != "" ];
+
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which mktemp)" == "" ];
 	then
-		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-		if [ "${BRANCH}" != "" ];
-		then
-			TMP=$(mktemp);
-			if [ "$(git status --porcelain --ignore-submodules 2>${TMP} | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
-			then
-				GIT_UNCOMMITED="(+)";
-			fi
-			if [ "${FLAG_COLOR}" != "false" ];
-			then
-				echo -en "\033[32m";
-			fi
-			if [ "$(cat ${TMP})" != "" ];
-			then
-				GIT_UNCOMMITED="(?)";
-			fi
-			echo -en "[${GIT_UNCOMMITED}git::${BRANCH}]";
-			if [ "${FLAG_COLOR}" != "false" ];
-			then
-				echo -en "\033[0m";
-			fi
-			echo -en " ";
-			rm -rf "${TMP}";
-		fi
+		return;
 	fi
+
+
+	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" == "" ];
+	then
+		return;
+	fi
+
+
+	local TMP=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		return;
+	fi
+
+
+	local GIT_UNCOMMITED;
+	while true;
+	do
+		$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
+		if [ "${?}" != "0" ];
+		then
+			GIT_UNCOMMITED="(?)";
+			break;
+		fi
+
+		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l)" != "0" ];
+		then
+			GIT_UNCOMMITED="(+)";
+			break;
+		fi
+
+		if [ "$(grep '^??' "${TMP}" | wc -l)" != "0" ] && [ "${G}" != "false" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+		then
+			GIT_UNCOMMITED="(-)";
+			break;
+		fi
+
+		break;
+	done
+
+	rm -rf "${TMP}";
+
+
+	if [ "${GITBASH_FLAG_COLOR}" == "true" ];
+	then
+		echo -en "\033[32m";
+	fi
+
+	echo -en "[${GIT_UNCOMMITED}git::${BRANCH}]";
+
+	if [ "${GITBASH_FLAG_COLOR}" != "false" ];
+	then
+		echo -en "\033[0m";
+	fi
+
+	echo -en " ";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_merge()
@@ -124,15 +173,19 @@ function git_pull()
 		return;
 	fi
 
-	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
 	then
-		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-		if [ "${BRANCH}" != "" ];
-		then
-			echo "git pull origin ${BRANCH}";
-			git pull origin "${BRANCH}";
-		fi
+		return;
 	fi
+
+	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" == "" ];
+	then
+		return;
+	fi
+
+	echo "git pull origin ${BRANCH}";
+	git pull origin "${BRANCH}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_push()
@@ -143,15 +196,19 @@ function git_push()
 		return;
 	fi
 
-	if [ "$(which git)" != "" ] && [ "$(which grep)" != "" ] && [ "$(which sed)" != "" ];
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
 	then
-		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-		if [ "${BRANCH}" != "" ];
-		then
-			echo "git push origin ${BRANCH}";
-			git push origin "${BRANCH}";
-		fi
+		return;
 	fi
+
+	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" == "" ];
+	then
+		return;
+	fi
+
+	echo "git push origin ${BRANCH}";
+	git push origin "${BRANCH}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function gitbash_update()
@@ -193,20 +250,24 @@ function gitbash_help()
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_commit()
 {
-	if [ "$(which git)" != "" ];
+	if [ "$(which git)" == "" ];
 	then
-		git status &> /dev/null;
-		if [ "${?}" == "0" ];
-		then
-			if [ "${1}" == "" ];
-			then
-				echo "git commit -a -m 'update'";
-				git commit -a -m 'update';
-			else
-				echo "git commit -a -m \"${1}\"";
-				git commit -a -m "${1}";
-			fi
-		fi
+		return;
+	fi
+
+	git status &> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		return;
+	fi
+
+	if [ "${1}" == "" ];
+	then
+		echo "git commit -a -m 'update'";
+		git commit -a -m 'update';
+	else
+		echo "git commit -a -m \"${1}\"";
+		git commit -a -m "${1}";
 	fi
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -227,11 +288,13 @@ function git_sync()
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_flush()
 {
-	if [ "$(which git)" != "" ];
+	if [ "$(which git)" == "" ];
 	then
-		git_commit "${1}";
-		git_sync;
+		return;
 	fi
+
+	git_commit "${1}";
+	git_sync;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 if [ "${USER}" == "root" ];
