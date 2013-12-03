@@ -111,30 +111,31 @@ function get_git_branch()
 	fi
 
 
-	local GIT_UNCOMMITED;
+	local GIT_STATUS;
 	while true;
 	do
 		$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
 		if [ "${?}" != "0" ];
 		then
-			GIT_UNCOMMITED="(?)";
+			GIT_STATUS="(?)";
 			break;
 		fi
 
 		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l)" != "0" ];
 		then
-			GIT_UNCOMMITED="(+)";
+			GIT_STATUS="(+)";
 			break;
 		fi
 
 		if [ "$(grep '^??' "${TMP}" | wc -l)" != "0" ] && [ "${G}" != "false" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
 		then
-			GIT_UNCOMMITED="(-)";
+			GIT_STATUS="(-)";
 			break;
 		fi
 
 		break;
 	done
+
 
 	rm -rf "${TMP}";
 
@@ -144,7 +145,7 @@ function get_git_branch()
 		echo -en "\033[32m";
 	fi
 
-	echo -en "[${GIT_UNCOMMITED}git::${BRANCH}]";
+	echo -en "[${GIT_STATUS}git::${BRANCH}]";
 
 	if [ "${GITBASH_FLAG_COLOR}" != "false" ];
 	then
@@ -213,7 +214,7 @@ function git_push()
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function gitbash_update()
 {
-	CUR_PWD=${PWD};
+	local CUR_PWD="${PWD}";
 
 	if [ -e ~/.config/gitbash ];
 	then
@@ -226,12 +227,12 @@ function gitbash_update()
 	fi
 
 	git_pull;
-	cd "${CUR_PWD}";
+	cd -- "${CUR_PWD}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function gitbash_help()
 {
-	CUR_PWD=${PWD};
+	CUR_PWD="${PWD}";
 
 	if [ -e ~/.config/gitbash ];
 	then
@@ -245,7 +246,7 @@ function gitbash_help()
 
 	cat README;
 	cat HELP;
-	cd "${CUR_PWD}";
+	cd -- "${CUR_PWD}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_commit()
