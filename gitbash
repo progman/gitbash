@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.3.4
+# 0.3.5
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -127,7 +127,7 @@ function get_git_branch()
 			break;
 		fi
 
-		if [ "$(grep '^??' "${TMP}" | wc -l)" != "0" ] && [ "${G}" != "false" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+		if [ "$(grep '^??' "${TMP}" | wc -l)" != "0" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
 		then
 			GIT_STATUS="(-)";
 			break;
