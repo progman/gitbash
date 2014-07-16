@@ -1,12 +1,12 @@
 Functions gitbash
 
-	git_url [URL]        - view remote origin url
-	git_pwd              - view root dir
+	git_url [URL]        - get/set remote origin url
+	git_pwd              - get root dir
 	git_commit [MESSAGE] - git commit -a
 	git_pull             - git pull current branch
 	git_push             - git push current branch
 	git_sync             - run git_pull and git_push
-	git_flush [MESSAGE]  - run git_commit, git_pull and git_push
+	git_flush [MESSAGE]  - run git_commit, git_sync
 	git_merge BRANCH     - git merge --no-ff BRANCH
 	git_gc               - git gc --aggressive --prune=now
 	gitbash_update       - update gitbash
