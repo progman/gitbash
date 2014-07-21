@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.3.5
+# 0.3.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -89,76 +89,6 @@ function git_gc()
 	echo "${OLD} -> ${NEW} (${P}%)";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-function get_git_branch()
-{
-#	local GITBASH_FLAG_COLOR='false';
-#	local GITBASH_FLAG_UNTRACKED='true';
-
-
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which mktemp)" == "" ];
-	then
-		return;
-	fi
-
-
-	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-	if [ "${BRANCH}" == "" ];
-	then
-		return;
-	fi
-
-
-	local TMP=$(mktemp);
-	if [ "${?}" != "0" ];
-	then
-		return;
-	fi
-
-
-	local GIT_STATUS;
-	while true;
-	do
-		$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
-		if [ "${?}" != "0" ];
-		then
-			GIT_STATUS="(?)";
-			break;
-		fi
-
-		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l)" != "0" ];
-		then
-			GIT_STATUS="(+)";
-			break;
-		fi
-
-		if [ "$(grep '^??' "${TMP}" | wc -l)" != "0" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
-		then
-			GIT_STATUS="(-)";
-			break;
-		fi
-
-		break;
-	done
-
-
-	rm -rf "${TMP}";
-
-
-	if [ "${GITBASH_FLAG_COLOR}" == "true" ];
-	then
-		echo -en "\033[32m";
-	fi
-
-	echo -en "[${GIT_STATUS}git::${BRANCH}]";
-
-	if [ "${GITBASH_FLAG_COLOR}" != "false" ];
-	then
-		echo -en "\033[0m";
-	fi
-
-	echo -en " ";
-}
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function git_merge()
 {
 	if [ "${1}" == "" ];
@@ -212,8 +142,8 @@ function git_push()
 		return;
 	fi
 
-	echo "git push origin ${BRANCH}";
-	git push origin "${BRANCH}";
+	echo "git push -u origin ${BRANCH}";
+	git push -u origin "${BRANCH}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function gitbash_update()
@@ -302,10 +232,103 @@ function git_flush()
 	git_sync;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function get_git_branch()
+{
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which mktemp)" == "" ];
+	then
+		return;
+	fi
+
+
+	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	if [ "${BRANCH}" == "" ];
+	then
+		return;
+	fi
+
+
+	local TMP=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		return;
+	fi
+
+
+	local GIT_STATUS;
+	while true;
+	do
+		$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
+		if [ "${?}" != "0" ];
+		then
+			GIT_STATUS="(?)";
+			break;
+		fi
+
+		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l)" != "0" ];
+		then
+			GIT_STATUS="(+)";
+			break;
+		fi
+
+		if [ "$(grep '^??' "${TMP}" | wc -l)" != "0" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+		then
+			GIT_STATUS="(-)";
+			break;
+		fi
+
+		break;
+	done
+
+
+	rm -rf "${TMP}";
+
+
+	if [ "${GITBASH_FLAG_COLOR}" == "true" ];
+	then
+		echo -en "\033[32m";
+	fi
+
+	echo -en "[${GIT_STATUS}git::${BRANCH}]";
+
+	if [ "${GITBASH_FLAG_COLOR}" != "false" ];
+	then
+		echo -en "\033[0m";
+	fi
+
+	echo -en " ";
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function gitbash()
+{
+	local SHELL_STATUS="${?}";
+	local RESULT;
+
+
+	if [ "${SHELL_STATUS}" != "0" ] && [ "${GITBASH_FLAG_SHELL_STATUS_ENABLE}" == "true" ];
+	then
+		RESULT+="{${SHELL_STATUS}} ";
+	fi
+
+	if [ "$(which date)" != "" ] && [ "${GITBASH_FLAG_DATE_ENABLE}" == "true" ];
+	then
+		RESULT+="$(date +'%Y%m%d%H%M%S') ";
+	fi
+
+	RESULT+="$(get_git_branch)";
+
+
+	echo "${RESULT}";
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# GITBASH_FLAG_COLOR='false';
+# GITBASH_FLAG_UNTRACKED='true';
+# GITBASH_FLAG_SHELL_STATUS_ENABLE='false';
+# GITBASH_FLAG_DATE_ENABLE='false';
+
 if [ "${USER}" == "root" ];
 then
-	export PS1='$(get_git_branch)\u@\h:\w# ';
+	export PS1='$(gitbash)\u@\h:\w# ';
 else
-	export PS1='$(get_git_branch)\u@\h:\w$ ';
+	export PS1='$(gitbash)\u@\h:\w$ ';
 fi
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#

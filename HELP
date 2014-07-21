@@ -28,6 +28,6 @@ Create ssh keys
 First push Git repo
 
 	cd gitbash;
-	git remote add origin git@github.com:progman/gitbash.git;
-	git push -u origin master;
+	git_url git@github.com:progman/gitbash.git;
+	git_push;
 
