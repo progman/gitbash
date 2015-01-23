@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.3.6
+# 0.3.7
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -10,12 +10,6 @@
 function git_url()
 {
 	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
-	then
-		return;
-	fi
-
-	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-	if [ "${BRANCH}" == "" ];
 	then
 		return;
 	fi
