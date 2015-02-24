@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.3.9
+# 0.4.0
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -270,6 +270,7 @@ function get_git_branch()
 	fi
 
 
+	local val;
 	local GIT_STATUS;
 	while true;
 	do
@@ -280,13 +281,13 @@ function get_git_branch()
 			break;
 		fi
 
-		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l)" != "0" ];
+		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l | { read val; echo ${val}; })" != "0" ];
 		then
 			GIT_STATUS="(+)";
 			break;
 		fi
 
-		if [ "$(grep '^??' "${TMP}" | wc -l)" != "0" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+		if [ "$(grep '^??' "${TMP}" | wc -l | { read val; echo ${val}; })" != "0" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
 		then
 			GIT_STATUS="(-)";
 			break;
