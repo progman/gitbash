@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.3.8
+# 0.3.9
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -257,7 +257,13 @@ function get_git_branch()
 	fi
 
 
-	local TMP=$(mktemp);
+	if [ "${TMPDIR}" == "" ];
+	then
+		TMPDIR='/tmp';
+	fi
+
+
+	local TMP=$(mktemp "${TMPDIR}"/gitbash.XXXXXXXXXX);
 	if [ "${?}" != "0" ];
 	then
 		return;
