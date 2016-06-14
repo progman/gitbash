@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.4.2
+# 0.4.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -90,9 +90,12 @@ function git_gc()
 		return;
 	fi
 
-	local OLD=$(du -sb | { read a b; echo ${a}; });
+	local COL1;
+	local COL2;
+
+	local OLD=$(du -sb | { read COL1 COL2; echo ${COL1}; });
 	git gc --aggressive --prune=now &> /dev/null;
-	local NEW=$(du -sb | { read a b; echo ${a}; });
+	local NEW=$(du -sb | { read COL1 COL2; echo ${COL1}; });
 
 	local P;
 	(( P = 0 - (100 - (NEW / ( OLD / 100 ))) ));
@@ -206,28 +209,24 @@ function git_flush()
 	git_sync;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-function gitbash_help()
-{
-	CUR_PWD="${PWD}";
-
-	if [ -e ~/.config/gitbash ];
-	then
-		cd ~/.config/gitbash;
-	fi
-
-	if [ -e ~/.config/gitbash.git ];
-	then
-		cd ~/.config/gitbash.git;
-	fi
-
-	cat README;
-	cat HELP;
-	cd -- "${CUR_PWD}";
-}
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function gitbash()
 {
-	gitbash_help;
+	if [ -e ~/.config/gitbash/README ] && [ -e ~/.config/gitbash/HELP ];
+	then
+		cat ~/.config/gitbash/README ~/.config/gitbash/HELP;
+		return;
+	fi
+
+	if [ -e ~/.config/gitbash.git/README ] && [ -e ~/.config/gitbash.git/HELP ];
+	then
+		cat ~/.config/gitbash.git/README ~/.config/gitbash.git/HELP;
+		return;
+	fi
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function gitbash_help()
+{
+	gitbash;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function gitbash_update()
@@ -263,13 +262,15 @@ function gitbash_get_branch()
 	fi
 
 
-	if [ "${TMPDIR}" == "" ];
+# create temp dir and files
+	local LOCAL_TMPDIR="/tmp";
+	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
 	then
-		TMPDIR='/tmp';
+		LOCAL_TMPDIR="${TMPDIR}";
 	fi
 
 
-	local TMP=$(mktemp "${TMPDIR}"/gitbash.XXXXXXXXXX);
+	local TMP=$(mktemp "${LOCAL_TMPDIR}"/gitbash.XXXXXXXXXX);
 	if [ "${?}" != "0" ];
 	then
 		return;
