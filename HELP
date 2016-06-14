@@ -1,19 +1,19 @@
-Functions gitbash
+Functions of gitbash
 
 	git_url [URL]        - get/set remote origin url
 	git_commit [MESSAGE] - git commit -a
 	git_pull             - git pull current branch
 	git_push             - git push current branch
 	git_sync             - run git_pull and git_push
-	git_flush [MESSAGE]  - run git_commit, git_sync
+	git_flush [MESSAGE]  - run git_commit and git_sync
 	git_merge BRANCH     - git merge --no-ff BRANCH
 	git_gc               - git gc --aggressive --prune=now
 	git_pwd              - get root dir
 	git_cd               - cd to root dir
 	gitbash_update       - update gitbash
-	gitbash_help         - this message
+	gitbash              - this message
 
-Set up git
+How do setup Git?
 
 	git config --global user.name "progman";
 	git config --global user.email gnuplanet@gmail.com;
@@ -23,11 +23,11 @@ Set up git
 	git config --global color.interactive auto;
 	git config --global color.status auto;
 
-Create ssh keys
+How do create ssh keys?
 
 	ssh-keygen -t rsa;
 
-First push Git repo
+How do first push into Git repo?
 
 	cd gitbash;
 	git_url git@github.com:progman/gitbash.git;
