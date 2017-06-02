@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.4.3
+# 0.4.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -16,16 +16,35 @@ function git_url()
 
 	if [ "${1}" != "" ];
 	then
-		git remote remove origin &> /dev/null; # obsolete
-		git remote rm origin &> /dev/null;
-		git remote add origin "${1}";
+		git remote set-url origin "${1}" &> /dev/null;
+		if [ "${?}" != "0" ];
+		then
+# maybe set-url is not exist
+			if [ "$(git remote | grep origin | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
+			then
+				git remote rm origin &> /dev/null; # obsolete
+				git remote remove origin &> /dev/null;
+			fi
+
+			git remote add origin "${1}" &> /dev/null;
+		fi
 	fi
 
-	local URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g');
-	if [ "${URL}" != "" ];
+	if [ "$(git remote | grep origin | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
 	then
-		echo "git clone ${URL}";
-		echo "";
+		local URL;
+		URL=$(git remote get-url origin) &> /dev/null;
+		if [ "${?}" != "0" ];
+		then
+# maybe get-url is not exist
+			URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g');
+		fi
+
+		if [ "${URL}" != "" ];
+		then
+			echo "git clone ${URL}";
+			echo "";
+		fi
 	fi
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
