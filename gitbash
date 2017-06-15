@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.4.4
+# 0.4.5
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -33,7 +33,7 @@ function git_url()
 	if [ "$(git remote | grep origin | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
 	then
 		local URL;
-		URL=$(git remote get-url origin) &> /dev/null;
+		URL=$(git remote get-url origin 2> /dev/null);
 		if [ "${?}" != "0" ];
 		then
 # maybe get-url is not exist
