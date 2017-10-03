@@ -10,6 +10,7 @@ Functions of gitbash
 	git_gc               - git gc --aggressive --prune=now
 	git_pwd              - get root dir
 	git_cd               - cd to root dir
+	git_add_all          - add all files
 	gitbash_update       - update gitbash
 	gitbash              - this message
 
