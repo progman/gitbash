@@ -1,12 +1,12 @@
 Git for bash
 
-How do install it?
+How do you install it?
 
 	mkdir -m 0700 ~/.config &> /dev/null;
 	git clone https://github.com/progman/gitbash.git ~/.config/gitbash;
 	echo "source ~/.config/gitbash/gitbash;" >> ~/.bashrc;
 
-How do use it?
+How do you use it?
 
 	Run gitbash for help or just enter into any git repository
 

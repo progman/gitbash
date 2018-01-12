@@ -14,7 +14,7 @@ Functions of gitbash
 	gitbash_update       - update gitbash
 	gitbash              - this message
 
-How do setup Git?
+How do you setup Git?
 
 	git config --global user.name "progman";
 	git config --global user.email gnuplanet@gmail.com;
@@ -24,11 +24,11 @@ How do setup Git?
 	git config --global color.interactive auto;
 	git config --global color.status auto;
 
-How do create ssh keys?
+How do you create ssh keys?
 
 	ssh-keygen -t rsa;
 
-How do first push into Git repo?
+How do you do first push into Git repo?
 
 	cd gitbash;
 	git_url git@github.com:progman/gitbash.git;
