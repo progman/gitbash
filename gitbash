@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.5.0
+# 0.5.1
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -528,7 +528,12 @@ function gitbash_get_branch()
 	local GIT_STATUS;
 	while true;
 	do
-		$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
+		if [ "${GITBASH_FLAG_SUBMODULES_IGNORE}" == "true" ];
+		then
+			$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
+		else
+			$(git status --porcelain 2> /dev/null > "${TMP}");
+		fi
 		if [ "${?}" != "0" ];
 		then
 			GIT_STATUS="(?)";
@@ -601,6 +606,7 @@ function gitbash_get_status()
 # GITBASH_FLAG_UNTRACKED='true';
 # GITBASH_FLAG_SHELL_STATUS_ENABLE='true';
 # GITBASH_FLAG_DATE_ENABLE='false';
+# GITBASH_FLAG_SUBMODULES_IGNORE='false';
 
 if [ "${USER}" == "root" ];
 then
