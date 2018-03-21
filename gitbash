@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.5.1
+# 0.5.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -326,17 +326,61 @@ function git_commit()
 	local STATUS;
 
 
-	if [ "$(which git)" == "" ];
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which mktemp)" == "" ];
 	then
 		return 0;
 	fi
 
 
-	git status &> /dev/null;
-	STATUS="${?}";
-	if [ "${STATUS}" != "0" ];
+# create temp dir and files
+	local LOCAL_TMPDIR="/tmp";
+	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
 	then
-		return "${STATUS}";
+		LOCAL_TMPDIR="${TMPDIR}";
+	fi
+
+
+	local TMP=$(mktemp "${LOCAL_TMPDIR}"/gitbash.XXXXXXXXXX);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+	local val;
+	local GIT_STATUS="";
+	while true;
+	do
+		if [ "${GITBASH_FLAG_SUBMODULES_IGNORE}" == "true" ];
+		then
+			$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
+		else
+			$(git status --porcelain 2> /dev/null > "${TMP}");
+		fi
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			rm -rf -- "${TMP}";
+			return "${STATUS}";
+		fi
+
+		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l | { read val; echo ${val}; })" != "0" ];
+		then
+			GIT_STATUS="(+)";
+			break;
+		fi
+
+		break;
+	done
+
+
+	rm -rf -- "${TMP}";
+
+
+	if [ "${GIT_STATUS}" == "" ];
+	then
+		echo "there is nothing to commit";
+		return 0;
 	fi
 
 
@@ -525,7 +569,7 @@ function gitbash_get_branch()
 
 
 	local val;
-	local GIT_STATUS;
+	local GIT_STATUS="";
 	while true;
 	do
 		if [ "${GITBASH_FLAG_SUBMODULES_IGNORE}" == "true" ];
@@ -534,7 +578,8 @@ function gitbash_get_branch()
 		else
 			$(git status --porcelain 2> /dev/null > "${TMP}");
 		fi
-		if [ "${?}" != "0" ];
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
 		then
 			GIT_STATUS="(?)";
 			break;
@@ -556,7 +601,7 @@ function gitbash_get_branch()
 	done
 
 
-	rm -rf "${TMP}";
+	rm -rf -- "${TMP}";
 
 
 	if [ "${GITBASH_FLAG_COLOR}" == "true" ];
