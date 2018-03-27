@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.5.3
+# 0.5.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -533,6 +533,11 @@ function gitbash_update()
 function gitbash_get_branch()
 {
 	local STATUS;
+	local BRANCH;
+	local LOCAL_TMPDIR="/tmp";
+	local TMP;
+	local GIT_STATUS_SUBMODULE="";
+	local GIT_STATUS="";
 
 
 	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which mktemp)" == "" ];
@@ -541,7 +546,8 @@ function gitbash_get_branch()
 	fi
 
 
-	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+# get branch name
+	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
 	if [ "${BRANCH}" == "" ];
 	then
 		return 0;
@@ -549,51 +555,92 @@ function gitbash_get_branch()
 
 
 # create temp dir and files
-	local LOCAL_TMPDIR="/tmp";
 	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
 	then
 		LOCAL_TMPDIR="${TMPDIR}";
 	fi
 
 
-	local TMP=$(mktemp "${LOCAL_TMPDIR}"/gitbash.XXXXXXXXXX);
+# make tmp file
+	TMP=$(mktemp "${LOCAL_TMPDIR}"/gitbash.XXXXXXXXXX);
 	if [ "${?}" != "0" ];
 	then
 		return 0;
 	fi
 
 
-	local val;
-	local GIT_STATUS="";
-	while true;
-	do
-		if [ "${GITBASH_FLAG_SUBMODULES_IGNORE}" == "true" ];
-		then
-			$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
-		else
-			$(git status --porcelain 2> /dev/null > "${TMP}");
-		fi
-		STATUS="${?}";
-		if [ "${STATUS}" != "0" ];
-		then
-			GIT_STATUS="(?)";
-			break;
-		fi
-
-		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l | { read val; echo ${val}; })" != "0" ];
-		then
-			GIT_STATUS="(+)";
-			break;
-		fi
-
-		if [ "$(grep '^??' "${TMP}" | wc -l | { read val; echo ${val}; })" != "0" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
-		then
-			GIT_STATUS="(-)";
-			break;
-		fi
-
+# get repo status
+	git status --porcelain=v2 2> /dev/null > "${TMP}";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		GIT_STATUS="(?)";
 		break;
-	done
+	fi
+
+
+	if [ "${GIT_STATUS}" == "" ];
+	then
+		local A;
+		local B;
+		local C;
+		local TRASH;
+		while read -r A B C TRASH;
+		do
+
+			if [ "${A}" == "?" ];
+			then
+
+				if [ "${GIT_STATUS}" == "" ];
+				then
+					if [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+					then
+						GIT_STATUS="-";
+					fi
+				fi
+
+			fi
+
+
+			if [ "${A}" != "?" ];
+			then
+
+				if [ "${C}" == "N..." ];
+				then
+					GIT_STATUS="+";
+				fi
+
+				if [ "${C}" != "N..." ];
+				then
+
+					if [ "${C}" == "S..U" ];
+					then
+						if [ "${GIT_STATUS_SUBMODULE}" == "" ];
+						then
+							if [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+							then
+								GIT_STATUS_SUBMODULE="s";
+							fi
+						fi
+					fi
+
+					if [ "${C}" != "S..U" ];
+					then
+						GIT_STATUS_SUBMODULE="S";
+					fi
+
+				fi
+
+			fi
+
+		done < "${TMP}";
+
+
+		if [ "${GIT_STATUS_SUBMODULE}" != "" ] || [ "${GIT_STATUS}" != "" ];
+		then
+			GIT_STATUS="(${GIT_STATUS_SUBMODULE}${GIT_STATUS})";
+		fi
+	fi
 
 
 	rm -rf -- "${TMP}";
@@ -646,7 +693,6 @@ function gitbash_get_status()
 # GITBASH_FLAG_UNTRACKED='true';
 # GITBASH_FLAG_SHELL_STATUS_ENABLE='true';
 # GITBASH_FLAG_DATE_ENABLE='false';
-# GITBASH_FLAG_SUBMODULES_IGNORE='false';
 
 if [ "${USER}" == "root" ];
 then
