@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.5.5
+# 0.5.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -10,6 +10,7 @@
 function git_url()
 {
 	local STATUS;
+	local URL;
 
 
 	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
@@ -37,7 +38,6 @@ function git_url()
 
 	if [ "$(git remote | grep origin | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
 	then
-		local URL;
 		URL=$(git remote get-url origin 2> /dev/null);
 		if [ "${?}" != "0" ];
 		then
@@ -59,6 +59,11 @@ function git_url()
 function git_add_all()
 {
 	local STATUS;
+	local BRANCH;
+	local CUR_DIR;
+	local COMMIT;
+	local DIR;
+	local COMMIT_NEW;
 
 
 	if [ "$(which git)" == "" ] || [ "$(which head)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
@@ -67,22 +72,22 @@ function git_add_all()
 	fi
 
 
-	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
 	if [ "${BRANCH}" == "" ];
 	then
 		return 0;
 	fi
 
 
-	local CUR_DIR="${PWD}";
-	local COMMIT="$(git log 2> /dev/null | head -n 1 | grep commit)";
+	CUR_DIR="${PWD}";
+	COMMIT="$(git log 2> /dev/null | head -n 1 | grep commit)";
 
 
 	while true;
 	do
-		local DIR="${PWD}";
+		DIR="${PWD}";
 		cd ..;
-		local COMMIT_NEW="$(git log 2> /dev/null | head -n 1 | grep commit)";
+		COMMIT_NEW="$(git log 2> /dev/null | head -n 1 | grep commit)";
 
 		if [ "${COMMIT_NEW}" != "${COMMIT}" ];
 		then
@@ -100,6 +105,11 @@ function git_add_all()
 function git_pwd()
 {
 	local STATUS;
+	local BRANCH;
+	local CUR_DIR;
+	local COMMIT;
+	local DIR;
+	local COMMIT_NEW;
 
 
 	if [ "$(which git)" == "" ] || [ "$(which head)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
@@ -108,22 +118,22 @@ function git_pwd()
 	fi
 
 
-	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
 	if [ "${BRANCH}" == "" ];
 	then
 		return 0;
 	fi
 
 
-	local CUR_DIR="${PWD}";
-	local COMMIT="$(git log 2> /dev/null | head -n 1 | grep commit)";
+	CUR_DIR="${PWD}";
+	COMMIT="$(git log 2> /dev/null | head -n 1 | grep commit)";
 
 
 	while true;
 	do
-		local DIR="${PWD}";
+		DIR="${PWD}";
 		cd ..;
-		local COMMIT_NEW="$(git log 2> /dev/null | head -n 1 | grep commit)";
+		COMMIT_NEW="$(git log 2> /dev/null | head -n 1 | grep commit)";
 
 		if [ "${COMMIT_NEW}" != "${COMMIT}" ];
 		then
@@ -140,6 +150,7 @@ function git_pwd()
 function git_cd()
 {
 	local STATUS;
+	local GIT_PWD;
 
 
 	if [ "$(which git)" == "" ] || [ "$(which head)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
@@ -147,7 +158,7 @@ function git_cd()
 		return 0;
 	fi
 
-	local GIT_PWD="$(git_pwd)";
+	GIT_PWD="$(git_pwd)";
 	if [ "${GIT_PWD}" == "" ];
 	then
 		return 0;
@@ -162,6 +173,12 @@ function git_cd()
 function git_gc()
 {
 	local STATUS;
+	local BRANCH;
+	local COL1;
+	local COL2;
+	local OLD;
+	local NEW;
+	local P;
 
 
 	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which du)" == "" ];
@@ -170,18 +187,14 @@ function git_gc()
 	fi
 
 
-	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
 	if [ "${BRANCH}" == "" ];
 	then
 		return 0;
 	fi
 
 
-	local COL1;
-	local COL2;
-
-
-	local OLD=$(du -sb | { read COL1 COL2; echo ${COL1}; });
+	OLD=$(du -sb | { read COL1 COL2; echo ${COL1}; });
 
 
 	git gc --aggressive --prune=now &> /dev/null;
@@ -192,10 +205,9 @@ function git_gc()
 	fi
 
 
-	local NEW=$(du -sb | { read COL1 COL2; echo ${COL1}; });
+	NEW=$(du -sb | { read COL1 COL2; echo ${COL1}; });
 
 
-	local P;
 	(( P = 0 - (100 - (NEW / ( OLD / 100 ))) ));
 
 
@@ -232,6 +244,7 @@ function git_merge()
 function git_pull()
 {
 	local STATUS;
+	local BRANCH;
 
 
 	if [ "$(git_url)" == "" ];
@@ -247,7 +260,7 @@ function git_pull()
 	fi
 
 
-	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
 	if [ "${BRANCH}" == "" ];
 	then
 		return 0;
@@ -287,6 +300,7 @@ function git_pull()
 function git_push()
 {
 	local STATUS;
+	local BRANCH;
 
 
 	if [ "$(git_url)" == "" ];
@@ -302,7 +316,7 @@ function git_push()
 	fi
 
 
-	local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
 	if [ "${BRANCH}" == "" ];
 	then
 		return 0;
@@ -324,6 +338,10 @@ function git_push()
 function git_commit()
 {
 	local STATUS;
+	local LOCAL_TMPDIR="/tmp";
+	local TMP;
+	local val;
+	local GIT_STATUS="";
 
 
 	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which mktemp)" == "" ];
@@ -333,22 +351,19 @@ function git_commit()
 
 
 # create temp dir and files
-	local LOCAL_TMPDIR="/tmp";
 	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
 	then
 		LOCAL_TMPDIR="${TMPDIR}";
 	fi
 
 
-	local TMP=$(mktemp "${LOCAL_TMPDIR}"/gitbash.XXXXXXXXXX);
+	TMP=$(mktemp "${LOCAL_TMPDIR}"/gitbash.XXXXXXXXXX);
 	if [ "${?}" != "0" ];
 	then
 		return 0;
 	fi
 
 
-	local val;
-	local GIT_STATUS="";
 	while true;
 	do
 		git status --porcelain 2> /dev/null > "${TMP}";
@@ -538,6 +553,10 @@ function gitbash_get_branch()
 	local TMP;
 	local GIT_STATUS_SUBMODULE="";
 	local GIT_STATUS="";
+	local A;
+	local B;
+	local C;
+	local TRASH;
 
 
 	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which mktemp)" == "" ];
@@ -547,7 +566,7 @@ function gitbash_get_branch()
 
 
 # get branch name
-	BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
 	if [ "${BRANCH}" == "" ];
 	then
 		return 0;
@@ -580,10 +599,6 @@ function gitbash_get_branch()
 
 	if [ "${GIT_STATUS}" == "" ];
 	then
-		local A;
-		local B;
-		local C;
-		local TRASH;
 		while read -r A B C TRASH;
 		do
 
