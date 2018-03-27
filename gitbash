@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.5.2
+# 0.5.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -351,12 +351,7 @@ function git_commit()
 	local GIT_STATUS="";
 	while true;
 	do
-		if [ "${GITBASH_FLAG_SUBMODULES_IGNORE}" == "true" ];
-		then
-			$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
-		else
-			$(git status --porcelain 2> /dev/null > "${TMP}");
-		fi
+		git status --porcelain 2> /dev/null > "${TMP}";
 		STATUS="${?}";
 		if [ "${STATUS}" != "0" ];
 		then
@@ -364,7 +359,7 @@ function git_commit()
 			return "${STATUS}";
 		fi
 
-		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l | { read val; echo ${val}; })" != "0" ];
+		if [ "$(grep -v '^??' "${TMP}" | wc -l | { read val; echo ${val}; })" != "0" ];
 		then
 			GIT_STATUS="(+)";
 			break;
