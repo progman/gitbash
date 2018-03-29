@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.5.8
+# 0.5.9
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -350,6 +350,14 @@ function git_commit()
 	fi
 
 
+# check git repo
+	BRANCH="$(git branch 2>/dev/null)";
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
 # create temp dir and files
 	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
 	then
@@ -385,14 +393,6 @@ function git_commit()
 
 
 	rm -rf -- "${TMP}";
-
-
-# get branch name
-	BRANCH="$(git branch 2>/dev/null)";
-	if [ "${BRANCH}" == "" ];
-	then
-		GIT_STATUS="(?)"; # it is first commit
-	fi
 
 
 	if [ "${GIT_STATUS}" == "" ];
