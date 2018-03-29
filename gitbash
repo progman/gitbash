@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.5.7
+# 0.5.8
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -573,14 +573,6 @@ function gitbash_get_branch()
 	fi
 
 
-# get branch name
-	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
-	if [ "${BRANCH}" == "" ];
-	then
-		return 0;
-	fi
-
-
 # create temp dir and files
 	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
 	then
@@ -593,6 +585,31 @@ function gitbash_get_branch()
 	if [ "${?}" != "0" ];
 	then
 		return 0;
+	fi
+
+
+# get branch name
+	git branch 2> /dev/null > "${TMP}";
+	if [ "${?}" != "0" ];
+	then
+		rm -rf -- "${TMP}";
+		return 0;
+	fi
+	BRANCH=$(grep '^\*' "${TMP}" | sed -e 's/^\*\ //g');
+
+
+	if [ "${BRANCH}" == "" ];
+	then
+		if [ -e .git/HEAD ];
+		then
+			BRANCH=$(cat .git/HEAD | sed -e 's/ref:\ refs\/heads\///g');
+		fi
+	fi
+
+
+	if [ "${BRANCH}" == "" ];
+	then
+		BRANCH="?";
 	fi
 
 
@@ -673,7 +690,10 @@ function gitbash_get_branch()
 		echo -en "\033[32m";
 	fi
 
-	echo -en "[${GIT_STATUS}git::${BRANCH}]";
+	echo -en "[";
+	echo -en "${GIT_STATUS}";
+	echo -en "git::${BRANCH}";
+	echo -en "]";
 
 	if [ "${GITBASH_FLAG_COLOR}" != "false" ];
 	then
