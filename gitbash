@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.5.9
+# 0.6.0
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -618,7 +618,7 @@ function gitbash_get_branch()
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
-		GIT_STATUS="(git needs update)";
+		GIT_STATUS="(?)";
 	fi
 
 
