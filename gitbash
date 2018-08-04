@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.6.0
+# 0.6.1
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -736,10 +736,23 @@ function gitbash_get_status()
 # GITBASH_FLAG_SHELL_STATUS_ENABLE='true';
 # GITBASH_FLAG_DATE_ENABLE='false';
 
-if [ "${USER}" == "root" ];
-then
-	export PS1='$(gitbash_get_status):\w# ';
-else
+while true;
+do
+
+	if [ "${USER}" == "root" ];
+	then
+		export PS1='$(gitbash_get_status):\w# ';
+		break;
+	fi
+
+	if [ "${HOME}" == "/root" ];
+	then
+		export PS1='$(gitbash_get_status):\w# ';
+		break;
+	fi
+
 	export PS1='$(gitbash_get_status):\w$ ';
-fi
+	break;
+
+done
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
