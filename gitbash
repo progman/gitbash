@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.6.1
+# 0.6.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -11,9 +11,10 @@ function git_url()
 {
 	local STATUS;
 	local URL;
+	local COL1;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which wc)" == "" ] || [ "$(which echo)" == "" ];
 	then
 		return 0;
 	fi
@@ -112,7 +113,7 @@ function git_pwd()
 	local COMMIT_NEW;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which head)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
+	if [ "$(which git)" == "" ] || [ "$(which head)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which echo)" == "" ];
 	then
 		return 0;
 	fi
@@ -153,16 +154,18 @@ function git_cd()
 	local GIT_PWD;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which head)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
+	if [ "$(which git)" == "" ];
 	then
 		return 0;
 	fi
+
 
 	GIT_PWD="$(git_pwd)";
 	if [ "${GIT_PWD}" == "" ];
 	then
 		return 0;
 	fi
+
 
 	cd -- "${GIT_PWD}";
 
@@ -181,7 +184,7 @@ function git_gc()
 	local P;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which du)" == "" ];
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which echo)" == "" ] || [ "$(which du)" == "" ];
 	then
 		return 0;
 	fi
@@ -222,6 +225,12 @@ function git_merge()
 	local STATUS;
 
 
+	if [ "$(which git)" == "" ];
+	then
+		return 0;
+	fi
+
+
 	if [ "${1}" == "" ];
 	then
 		echo "ERROR: missing branch name";
@@ -247,15 +256,15 @@ function git_pull()
 	local BRANCH;
 
 
-	if [ "$(git_url)" == "" ];
+	if [ "$(which git)" == "" ];
 	then
-		echo "ERROR: remote repository is not set";
 		return 0;
 	fi
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
+	if [ "$(git_url)" == "" ];
 	then
+		echo "ERROR: remote repository is not set";
 		return 0;
 	fi
 
@@ -267,8 +276,8 @@ function git_pull()
 	fi
 
 
-	echo "git fetch -ap";
-	git fetch -ap;
+	echo "git fetch --quiet --append --prune";
+	git fetch --quiet --append --prune;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
@@ -276,8 +285,8 @@ function git_pull()
 	fi
 
 
-	echo "git pull origin ${BRANCH}";
-	git pull origin "${BRANCH}";
+	echo "git pull --quiet origin ${BRANCH}";
+	git pull --quiet origin "${BRANCH}";
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
@@ -285,8 +294,8 @@ function git_pull()
 	fi
 
 
-	echo "git submodule update --init --recursive";
-	git submodule update --init --recursive;
+	echo "git submodule update --quiet --init --recursive";
+	git submodule update --quiet --init --recursive;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
@@ -303,15 +312,15 @@ function git_push()
 	local BRANCH;
 
 
-	if [ "$(git_url)" == "" ];
+	if [ "$(which git)" == "" ];
 	then
-		echo "ERROR: remote repository is not set";
 		return 0;
 	fi
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ];
+	if [ "$(git_url)" == "" ];
 	then
+		echo "ERROR: remote repository is not set";
 		return 0;
 	fi
 
@@ -323,8 +332,8 @@ function git_push()
 	fi
 
 
-	echo "git push -u origin ${BRANCH}";
-	git push -u origin "${BRANCH}";
+	echo "git push --quiet --set-upstream origin ${BRANCH}";
+	git push --quiet --set-upstream origin "${BRANCH}";
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
@@ -340,11 +349,11 @@ function git_commit()
 	local STATUS;
 	local LOCAL_TMPDIR="/tmp";
 	local TMP;
-	local val;
+	local COL1;
 	local GIT_STATUS="";
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which mktemp)" == "" ];
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which mktemp)" == "" ] || [ "$(which rm)" == "" ] || [ "$(which wc)" == "" ];
 	then
 		return 0;
 	fi
@@ -382,7 +391,7 @@ function git_commit()
 			return "${STATUS}";
 		fi
 
-		if [ "$(grep -v '^??' "${TMP}" | wc -l | { read val; echo ${val}; })" != "0" ];
+		if [ "$(grep -v '^??' "${TMP}" | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
 		then
 			GIT_STATUS="(+)";
 			break;
@@ -404,16 +413,16 @@ function git_commit()
 
 	if [ "${1}" == "" ];
 	then
-		echo "git commit -a -m 'update'";
-		git commit -a -m 'update';
+		echo "git commit --quiet --all --message='update'";
+		git commit --quiet --all --message='update';
 		STATUS="${?}";
 		if [ "${STATUS}" != "0" ];
 		then
 			return "${STATUS}";
 		fi
 	else
-		echo "git commit -a -m \"${1}\"";
-		git commit -a -m "${1}";
+		echo "git commit --all --message=\"${1}\"";
+		git commit --all --message="${1}";
 		STATUS="${?}";
 		if [ "${STATUS}" != "0" ];
 		then
@@ -428,6 +437,15 @@ function git_commit()
 function git_sync()
 {
 	local STATUS;
+	local BRANCH;
+	local FLAG_REMOTE_BRACH;
+	local COL1;
+
+
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which wc)" == "" ];
+	then
+		return 0;
+	fi
 
 
 	if [ "$(git_url)" == "" ];
@@ -437,7 +455,20 @@ function git_sync()
 	fi
 
 
-	if [ "$(which git)" != "" ];
+# get current branch
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
+	if [ "${BRANCH}" == "" ];
+	then
+		return 0;
+	fi
+
+
+# is current branch came from remote repo?
+	FLAG_REMOTE_BRACH="$(git show-ref | grep remotes | grep -v HEAD | grep ${BRANCH} | wc -l | { read COL1; echo ${COL1}; })";
+
+
+# pull only if branch came from remote repo
+	if [ "${FLAG_REMOTE_BRACH}" != "0" ];
 	then
 		git_pull;
 		STATUS="${?}";
@@ -445,13 +476,14 @@ function git_sync()
 		then
 			return "${STATUS}";
 		fi
+	fi
 
-		git_push;
-		STATUS="${?}";
-		if [ "${STATUS}" != "0" ];
-		then
-			return "${STATUS}";
-		fi
+
+	git_push;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
 	fi
 
 
@@ -491,6 +523,12 @@ function git_flush()
 function gitbash()
 {
 	local STATUS;
+
+
+	if [ "$(which cat)" == "" ];
+	then
+		return 0;
+	fi
 
 
 	if [ -e ~/.config/gitbash/README ] && [ -e ~/.config/gitbash/HELP ];
@@ -567,7 +605,7 @@ function gitbash_get_branch()
 	local TRASH;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which mktemp)" == "" ];
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which mktemp)" == "" ] || [ "$(which rm)" == "" ] || [ "$(which cat)" == "" ] || [ "$(which echo)" == "" ];
 	then
 		return 0;
 	fi
