@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.6.4
+# 0.6.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -15,6 +15,14 @@ function git_url()
 
 
 	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which wc)" == "" ] || [ "$(which echo)" == "" ];
+	then
+		return 0;
+	fi
+
+
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
 	then
 		return 0;
 	fi
@@ -46,6 +54,7 @@ function git_url()
 			URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g');
 		fi
 
+
 		if [ "${URL}" != "" ];
 		then
 			echo "git clone ${URL}";
@@ -60,7 +69,6 @@ function git_url()
 function git_add_all()
 {
 	local STATUS;
-	local BRANCH;
 	local CUR_DIR;
 	local COMMIT;
 	local DIR;
@@ -73,8 +81,9 @@ function git_add_all()
 	fi
 
 
-	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
-	if [ "${BRANCH}" == "" ];
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
 	then
 		return 0;
 	fi
@@ -106,7 +115,6 @@ function git_add_all()
 function git_pwd()
 {
 	local STATUS;
-	local BRANCH;
 	local CUR_DIR;
 	local COMMIT;
 	local DIR;
@@ -119,8 +127,9 @@ function git_pwd()
 	fi
 
 
-	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
-	if [ "${BRANCH}" == "" ];
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
 	then
 		return 0;
 	fi
@@ -176,7 +185,6 @@ function git_cd()
 function git_gc()
 {
 	local STATUS;
-	local BRANCH;
 	local COL1;
 	local COL2;
 	local OLD;
@@ -190,8 +198,9 @@ function git_gc()
 	fi
 
 
-	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
-	if [ "${BRANCH}" == "" ];
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
 	then
 		return 0;
 	fi
@@ -238,6 +247,14 @@ function git_merge()
 	fi
 
 
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
 	echo "git merge --no-ff ${1} -m 'merge branch \"${1}\"'";
 	git merge --no-ff ${1} -m "merge branch \"${1}\"";
 	STATUS="${?}";
@@ -254,9 +271,12 @@ function git_pull()
 {
 	local STATUS;
 	local BRANCH;
+	local FLAG_MODIFY;
+	local COL1;
+	local REMOTE_LAST_COMMIT_HASH;
 
 
-	if [ "$(which git)" == "" ];
+	if [ "$(which git)" == "" ] || [ "$(which cat)" == "" ] || [ "$(which sed)" == "" ];
 	then
 		return 0;
 	fi
@@ -269,36 +289,34 @@ function git_pull()
 	fi
 
 
+# get branch name
 	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		if [ -e .git/HEAD ];
+		then
+			BRANCH=$(cat .git/HEAD | sed -e 's/ref:\ refs\/heads\///g');
+			STATUS="${?}";
+			if [ "${STATUS}" != "0" ];
+			then
+				return "${STATUS}";
+			fi
+		fi
+	fi
 	if [ "${BRANCH}" == "" ];
 	then
 		return 0;
 	fi
 
 
-# get remote commit
-#	echo "git rev-parse remotes/origin/${BRANCH}";
-	local REMOTE_LAST_COMMIT_HASH;
-	REMOTE_LAST_COMMIT_HASH="$(git rev-parse remotes/origin/${BRANCH} 2>&1)";
-	STATUS="${?}";
-	if [ "${STATUS}" != "0" ];
-	then
-		REMOTE_LAST_COMMIT_HASH="";
-	fi
-#	echo "REMOTE_LAST_COMMIT_HASH: ${REMOTE_LAST_COMMIT_HASH}";
-
-
 # get local commit
-#	echo "git rev-parse HEAD";
-	local LOCAL_LAST_COMMIT_HASH;
 	LOCAL_LAST_COMMIT_HASH="$(git rev-parse HEAD 2>&1)";
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
-#echo "[x1]";
-		return "${STATUS}";
+		LOCAL_LAST_COMMIT_HASH="1";
 	fi
-#	echo "LOCAL_LAST_COMMIT_HASH: ${LOCAL_LAST_COMMIT_HASH}";
 
 
 # fetch
@@ -308,6 +326,26 @@ function git_pull()
 	if [ "${STATUS}" != "0" ];
 	then
 		return "${STATUS}";
+	fi
+
+
+# is current branch came from remote repo?
+	FLAG_REMOTE_BRACH="$(git show-ref | grep remotes | grep -v HEAD | grep ${BRANCH} | wc -l | { read COL1; echo ${COL1}; })";
+
+
+# pull only if branch came from remote repo
+	if [ "${FLAG_REMOTE_BRACH}" == "0" ];
+	then
+		return 0;
+	fi
+
+
+# get remote commit
+	REMOTE_LAST_COMMIT_HASH="$(git rev-parse remotes/origin/${BRANCH} 2>&1)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		REMOTE_LAST_COMMIT_HASH="1";
 	fi
 
 
@@ -324,48 +362,17 @@ function git_pull()
 # cmp old and new commit
 	if [ "${REMOTE_LAST_COMMIT_HASH}" != "${LOCAL_LAST_COMMIT_HASH}" ];
 	then
-		echo " - >>>";
+		echo " - >>> pull data";
 	fi
 
 
-# get remote commit
-#	echo "git rev-parse remotes/origin/${BRANCH}";
-	local REMOTE_LAST_COMMIT_HASH;
-	REMOTE_LAST_COMMIT_HASH="$(git rev-parse remotes/origin/${BRANCH} 2>&1)";
-	STATUS="${?}";
-	if [ "${STATUS}" != "0" ];
-	then
-		REMOTE_LAST_COMMIT_HASH="";
-	fi
-#	echo "REMOTE_LAST_COMMIT_HASH: ${REMOTE_LAST_COMMIT_HASH}";
-
-
-# get local commit
-#	echo "git rev-parse HEAD";
-	local LOCAL_LAST_COMMIT_HASH;
-	LOCAL_LAST_COMMIT_HASH="$(git rev-parse HEAD 2>&1)";
-	STATUS="${?}";
-	if [ "${STATUS}" != "0" ];
-	then
-#echo "[x2]";
-		return "${STATUS}";
-	fi
-#	echo "LOCAL_LAST_COMMIT_HASH: ${LOCAL_LAST_COMMIT_HASH}";
-
-
+# update submodules
 	echo "git submodule update --quiet --init --recursive";
 	git submodule update --quiet --init --recursive;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
 		return "${STATUS}";
-	fi
-
-
-# cmp old and new commit
-	if [ "${REMOTE_LAST_COMMIT_HASH}" != "${LOCAL_LAST_COMMIT_HASH}" ];
-	then
-		echo " - >>>";
 	fi
 
 
@@ -378,7 +385,7 @@ function git_push()
 	local BRANCH;
 
 
-	if [ "$(which git)" == "" ];
+	if [ "$(which git)" == "" ] || [ "$(which cat)" == "" ] || [ "$(which sed)" == "" ];
 	then
 		return 0;
 	fi
@@ -391,7 +398,21 @@ function git_push()
 	fi
 
 
+# get branch name
 	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		if [ -e .git/HEAD ];
+		then
+			BRANCH=$(cat .git/HEAD | sed -e 's/ref:\ refs\/heads\///g');
+			STATUS="${?}";
+			if [ "${STATUS}" != "0" ];
+			then
+				return "${STATUS}";
+			fi
+		fi
+	fi
 	if [ "${BRANCH}" == "" ];
 	then
 		return 0;
@@ -399,28 +420,23 @@ function git_push()
 
 
 # get remote commit
-#	echo "git rev-parse remotes/origin/${BRANCH}";
 	local REMOTE_LAST_COMMIT_HASH;
 	REMOTE_LAST_COMMIT_HASH="$(git rev-parse remotes/origin/${BRANCH} 2>&1)";
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
-		REMOTE_LAST_COMMIT_HASH="";
+		REMOTE_LAST_COMMIT_HASH="1";
 	fi
-#	echo "REMOTE_LAST_COMMIT_HASH: ${REMOTE_LAST_COMMIT_HASH}";
 
 
 # get local commit
-#	echo "git rev-parse HEAD";
 	local LOCAL_LAST_COMMIT_HASH;
 	LOCAL_LAST_COMMIT_HASH="$(git rev-parse HEAD 2>&1)";
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
-#echo "[x3]";
-		return "${STATUS}";
+		REMOTE_LAST_COMMIT_HASH="2";
 	fi
-#	echo "LOCAL_LAST_COMMIT_HASH: ${LOCAL_LAST_COMMIT_HASH}";
 
 
 # push
@@ -436,7 +452,7 @@ function git_push()
 # cmp remote and local commit
 	if [ "${REMOTE_LAST_COMMIT_HASH}" != "${LOCAL_LAST_COMMIT_HASH}" ];
 	then
-		echo " - <<<";
+		echo " - <<< push data";
 	fi
 
 
@@ -458,8 +474,8 @@ function git_commit()
 	fi
 
 
-# check git repo
-	BRANCH="$(git branch 2>/dev/null)";
+# is git repo?
+	$(git status &> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		return 0;
@@ -536,45 +552,13 @@ function git_commit()
 function git_sync()
 {
 	local STATUS;
-	local BRANCH;
-	local FLAG_REMOTE_BRACH;
-	local COL1;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which wc)" == "" ];
+	git_pull;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
 	then
-		return 0;
-	fi
-
-
-	if [ "$(git_url)" == "" ];
-	then
-		echo "ERROR: remote repository is not set";
-		return 0;
-	fi
-
-
-# get current branch
-	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
-	if [ "${BRANCH}" == "" ];
-	then
-		return 0;
-	fi
-
-
-# is current branch came from remote repo?
-	FLAG_REMOTE_BRACH="$(git show-ref | grep remotes | grep -v HEAD | grep ${BRANCH} | wc -l | { read COL1; echo ${COL1}; })";
-
-
-# pull only if branch came from remote repo
-	if [ "${FLAG_REMOTE_BRACH}" != "0" ];
-	then
-		git_pull;
-		STATUS="${?}";
-		if [ "${STATUS}" != "0" ];
-		then
-			return "${STATUS}";
-		fi
+		return "${STATUS}";
 	fi
 
 
@@ -592,12 +576,6 @@ function git_sync()
 function git_flush()
 {
 	local STATUS;
-
-
-	if [ "$(which git)" == "" ];
-	then
-		return 0;
-	fi
 
 
 	git_commit "${1}";
