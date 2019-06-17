@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.6.8
+# 0.6.9
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -317,8 +317,8 @@ function git_pull()
 
 
 # fetch
-	echo "git fetch --quiet --append --prune";
-	git fetch --quiet --append --prune;
+	echo "git fetch --append --prune --quiet";
+	git fetch --append --prune --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
@@ -347,8 +347,8 @@ function git_pull()
 
 
 # pull
-	echo "git pull --quiet origin ${BRANCH}";
-	git pull --quiet origin "${BRANCH}";
+	echo "git pull origin ${BRANCH} --quiet";
+	git pull origin "${BRANCH}" --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
@@ -364,8 +364,8 @@ function git_pull()
 
 
 # update submodules
-	echo "git submodule update --quiet --init --recursive";
-	git submodule update --quiet --init --recursive;
+	echo "git submodule update --init --recursive --quiet";
+	git submodule update --init --recursive --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
@@ -437,8 +437,8 @@ function git_push()
 
 
 # push
-	echo "git push --quiet --set-upstream origin ${BRANCH}";
-	git push --quiet --set-upstream origin "${BRANCH}";
+	echo "git push --set-upstream origin ${BRANCH} --quiet";
+	git push --set-upstream origin "${BRANCH}" --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
@@ -525,8 +525,8 @@ function git_commit()
 
 	if [ "${1}" == "" ];
 	then
-		echo "git commit --quiet --all --message='update'";
-		git commit --quiet --all --message='update';
+		echo "git commit --all --message='update' --quiet";
+		git commit --all --message='update' --quiet;
 		STATUS="${?}";
 		if [ "${STATUS}" != "0" ];
 		then
