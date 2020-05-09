@@ -9,4 +9,42 @@ How do you install it?
 How do you use it?
 
 	Run gitbash for help or just enter into any git repository
+	
+	Functions of gitbash
+
+	git_url [URL]        - get/set remote origin url
+	git_commit [MESSAGE] - git commit -a
+	git_pull             - git pull current branch
+	git_push             - git push current branch
+	git_sync             - run git_pull and git_push
+	git_flush [MESSAGE]  - run git_commit and git_sync
+	git_merge BRANCH     - git merge --no-ff BRANCH
+	git_gc               - git gc --aggressive --prune=now
+	git_pwd              - get root dir
+	git_cd               - cd to root dir
+	git_add_all          - add all files
+	gitbash_update       - update gitbash
+	gitbash              - this message
+
+How do you setup Git?
+
+	git config --global user.name "progman";
+	git config --global user.email nven1800@gmail.com;
+	git config --global color.branch auto;
+	git config --global color.diff auto;
+	git config --global interactive.diffFilter diff-highlight
+	git config --global color.interactive auto;
+	git config --global color.status auto;
+
+How do you create ssh keys?
+
+	ssh-keygen -t rsa;
+
+How do you do first push into Git repo?
+
+	cd gitbash;
+	git_url git@github.com:progman/gitbash.git;
+	git_push;
+
+
 
