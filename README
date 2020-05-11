@@ -28,7 +28,7 @@ How do you use it?
 
 How do you setup Git?
 
-	git config --global user.name "progman";
+	git config --global user.name "gamven";
 	git config --global user.email nven1800@gmail.com;
 	git config --global color.branch auto;
 	git config --global color.diff auto;
