@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.6.9
+# 0.7.0
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -254,6 +254,55 @@ function git_merge()
 
 	echo "git merge --no-ff ${1} -m 'merge branch \"${1}\"'";
 	git merge --no-ff ${1} -m "merge branch \"${1}\"";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_tag()
+{
+	local STATUS;
+
+
+	if [ "$(which git)" == "" ];
+	then
+		return 0;
+	fi
+
+
+	if [ "${1}" == "" ];
+	then
+		echo "ERROR: missing tag name";
+		return 0;
+	fi
+
+
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+# tag
+	echo "git tag ${1}";
+	git tag ${1};
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+# push
+	echo "git push --set-upstream origin ${1} --quiet";
+	git push --set-upstream origin ${1} --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
