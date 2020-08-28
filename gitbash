@@ -267,6 +267,8 @@ function git_merge()
 function git_tag()
 {
 	local STATUS;
+	local TAG="${1}";
+	local MSG="${2}";
 
 
 	if [ "$(which git)" == "" ];
@@ -275,7 +277,7 @@ function git_tag()
 	fi
 
 
-	if [ "${1}" == "" ];
+	if [ "${TAG}" == "" ];
 	then
 		echo "ERROR: missing tag name";
 		return 0;
@@ -291,9 +293,18 @@ function git_tag()
 
 
 # tag
-	echo "git tag ${1}";
-	git tag ${1};
-	STATUS="${?}";
+	if [ "${MSG}" == "" ];
+	then
+		echo "git tag ${TAG}";
+		git tag ${TAG};
+		STATUS="${?}";
+	else
+		echo "git tag -a ${TAG} -m ${MSG}";
+		git tag -a ${TAG} -m ${MSG};
+		STATUS="${?}";
+	fi
+
+
 	if [ "${STATUS}" != "0" ];
 	then
 		return "${STATUS}";
@@ -301,8 +312,8 @@ function git_tag()
 
 
 # push
-	echo "git push --set-upstream origin ${1} --quiet";
-	git push --set-upstream origin ${1} --quiet;
+	echo "git push --set-upstream origin ${TAG} --quiet";
+	git push --set-upstream origin ${TAG} --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
