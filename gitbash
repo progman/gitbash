@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.7.0
+# 0.7.1
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -665,16 +665,16 @@ function gitbash()
 	fi
 
 
-	if [ -e ~/.config/gitbash/README ] && [ -e ~/.config/gitbash/HELP ];
+	if [ -e ~/.config/gitbash/README ];
 	then
-		cat ~/.config/gitbash/README ~/.config/gitbash/HELP;
+		cat ~/.config/gitbash/README;
 		return 0;
 	fi
 
 
-	if [ -e ~/.config/gitbash.git/README ] && [ -e ~/.config/gitbash.git/HELP ];
+	if [ -e ~/.config/gitbash.git/README ];
 	then
-		cat ~/.config/gitbash.git/README ~/.config/gitbash.git/HELP;
+		cat ~/.config/gitbash.git/README;
 		return 0;
 	fi
 
