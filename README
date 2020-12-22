@@ -18,6 +18,7 @@ Functions of gitbash
 	git_push             - git push current branch
 	git_sync             - run git_pull and git_push
 	git_flush [MESSAGE]  - run git_commit and git_sync
+	git_clone [URL]      - run git clone and change dir and git_pull
 	git_merge BRANCH     - git merge --no-ff BRANCH
 	git_tag TAG [MSG]    - git tag -a TAG -m MSG & git push TAG
 	git_gc               - git gc --aggressive --prune=now
@@ -39,7 +40,7 @@ How do you setup Git?
 
 How do you create ssh keys?
 
-	ssh-keygen -t rsa;
+	ssh-keygen -t rsa -b 4096;
 
 How do you make a first push into Git repo?
 

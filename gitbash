@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.7.1
+# 0.7.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -57,7 +57,7 @@ function git_url()
 
 		if [ "${URL}" != "" ];
 		then
-			echo "git clone ${URL}";
+			echo "git_clone ${URL};";
 			echo "";
 		fi
 	fi
@@ -252,7 +252,7 @@ function git_merge()
 	fi
 
 
-	echo "git merge --no-ff ${1} -m 'merge branch \"${1}\"'";
+	echo "git merge --no-ff ${1} -m 'merge branch \"${1}\"';";
 	git merge --no-ff ${1} -m "merge branch \"${1}\"";
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
@@ -295,11 +295,11 @@ function git_tag()
 # tag
 	if [ "${MSG}" == "" ];
 	then
-		echo "git tag ${TAG}";
+		echo "git tag ${TAG};";
 		git tag ${TAG};
 		STATUS="${?}";
 	else
-		echo "git tag -a ${TAG} -m ${MSG}";
+		echo "git tag -a ${TAG} -m ${MSG};";
 		git tag -a ${TAG} -m ${MSG};
 		STATUS="${?}";
 	fi
@@ -312,7 +312,7 @@ function git_tag()
 
 
 # push
-	echo "git push --set-upstream origin ${TAG} --quiet";
+	echo "git push --set-upstream origin ${TAG} --quiet;";
 	git push --set-upstream origin ${TAG} --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
@@ -377,7 +377,7 @@ function git_pull()
 
 
 # fetch
-	echo "git fetch --append --prune --quiet";
+	echo "git fetch --append --prune --quiet;";
 	git fetch --append --prune --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
@@ -407,7 +407,7 @@ function git_pull()
 
 
 # pull
-	echo "git pull origin ${BRANCH} --quiet";
+	echo "git pull origin ${BRANCH} --quiet;";
 	git pull origin "${BRANCH}" --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
@@ -424,7 +424,7 @@ function git_pull()
 
 
 # update submodules
-	echo "git submodule update --init --recursive --quiet";
+	echo "git submodule update --init --recursive --quiet;";
 	git submodule update --init --recursive --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
@@ -497,7 +497,7 @@ function git_push()
 
 
 # push
-	echo "git push --set-upstream origin ${BRANCH} --quiet";
+	echo "git push --set-upstream origin ${BRANCH} --quiet;";
 	git push --set-upstream origin "${BRANCH}" --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
@@ -585,7 +585,7 @@ function git_commit()
 
 	if [ "${1}" == "" ];
 	then
-		echo "git commit --all --message='update' --quiet";
+		echo "git commit --all --message='update' --quiet;";
 		git commit --all --message='update' --quiet;
 		STATUS="${?}";
 		if [ "${STATUS}" != "0" ];
@@ -593,7 +593,7 @@ function git_commit()
 			return "${STATUS}";
 		fi
 	else
-		echo "git commit --all --message=\"${1}\"";
+		echo "git commit --all --message=\"${1}\";";
 		git commit --all --message="${1}";
 		STATUS="${?}";
 		if [ "${STATUS}" != "0" ];
@@ -644,6 +644,69 @@ function git_flush()
 
 
 	git_sync;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_clone()
+{
+	local STATUS;
+	local URL;
+	local DIR;
+
+
+	URL="${1}";
+	DIR="${2}";
+
+
+	if [ "${URL}" == "" ];
+	then
+		return 0;
+	fi
+
+
+	if [ "${DIR}" == "" ];
+	then
+		DIR="${URL}";
+		DIR="${DIR%.git}";
+		DIR="${DIR%/}";
+		DIR="${DIR/*\//}";
+
+
+		echo "git clone \"${URL}\" --quiet;";
+		git clone "${URL}" --quiet;
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			return "${STATUS}";
+		fi
+	else
+		echo "git clone \"${URL}\" \"${DIR}\" --quiet;";
+		git clone "${URL}" "${DIR}" --quiet;
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			return "${STATUS}";
+		fi
+	fi
+
+
+	echo "cd -- \"${DIR}\";";
+	cd -- "${DIR}";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	git_pull;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
