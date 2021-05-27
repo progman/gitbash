@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.7.3
+# 0.7.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -196,7 +196,7 @@ function git_gc()
 
 
 # is git repo?
-	$(git status &> /dev/null);
+	$(git branch &> /dev/null); # git status is not work in .git dir
 	if [ "${?}" != "0" ];
 	then
 		return 0;
@@ -252,8 +252,8 @@ function git_merge()
 	fi
 
 
-	echo "git merge --no-ff ${1} -m 'merge branch \"${1}\"';";
-	git merge --no-ff ${1} -m "merge branch \"${1}\"";
+	echo "git merge --no-ff -m 'merge branch \"${1}\"' ${1};";
+	git merge --no-ff -m "merge branch \"${1}\"" ${1};
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
