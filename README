@@ -3,7 +3,7 @@ Git for bash
 How do you install it?
 
 	mkdir -m 0700 ~/.config &> /dev/null;
-	git clone https://github.com/progman/gitbash.git ~/.config/gitbash;
+	git clone gh repo clone angelseblani/gitbash
 	echo "source ~/.config/gitbash/gitbash;" >> ~/.bashrc;
 
 How do you use it?
@@ -30,8 +30,8 @@ Functions of gitbash
 
 How do you setup Git?
 
-	git config --global user.name "progman";
-	git config --global user.email gnuplanet@gmail.com;
+	git config --global user.name "angelseblani";
+	git config --global user.email 84080393+angelseblani@users.noreply.github.com;
 	git config --global color.branch auto;
 	git config --global color.diff auto;
 	git config --global color.interactive auto;
