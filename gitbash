@@ -1,0 +1,994 @@
+#!/bin/bash
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# 0.7.4
+# Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+#
+# $ mkdir -m 0700 ~/.config &> /dev/null;
+# $ git clone https://github.com/progman/gitbash.git ~/.config/gitbash;
+# $ echo "source ~/.config/gitbash/gitbash" >> ~/.bashrc;
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_url()
+{
+	local STATUS;
+	local URL;
+	local COL1;
+
+
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which wc)" == "" ] || [ "$(which echo)" == "" ];
+	then
+		return 0;
+	fi
+
+
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+	if [ "${1}" != "" ];
+	then
+		git remote set-url origin "${1}" &> /dev/null;
+		if [ "${?}" != "0" ];
+		then
+# maybe set-url is not exist
+			if [ "$(git remote | grep origin | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
+			then
+				git remote rm origin &> /dev/null; # obsolete
+				git remote remove origin &> /dev/null;
+			fi
+
+			git remote add origin "${1}" &> /dev/null;
+		fi
+	fi
+
+
+	if [ "$(git remote | grep origin | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
+	then
+		URL=$(git remote get-url origin 2> /dev/null);
+		if [ "${?}" != "0" ];
+		then
+# maybe get-url is not exist
+			URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g');
+		fi
+
+
+		if [ "${URL}" != "" ];
+		then
+			echo "git_clone ${URL};";
+			echo "";
+		fi
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_add_all()
+{
+	local STATUS;
+	local CUR_DIR;
+	local DIR;
+
+
+	if [ "$(which git)" == "" ];
+	then
+		return 0;
+	fi
+
+
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+	CUR_DIR="${PWD}";
+
+
+	while true;
+	do
+		DIR="${PWD}";
+		cd ..;
+
+# is git repo?
+		$(git status &> /dev/null);
+		if [ "${?}" != "0" ];
+		then
+			cd -- "${DIR}";
+			git add .
+			cd -- "${CUR_DIR}";
+			break;
+		fi
+	done
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_pwd()
+{
+	local STATUS;
+	local CUR_DIR;
+	local DIR;
+
+
+	if [ "$(which git)" == "" ] || [ "$(which echo)" == "" ];
+	then
+		return 0;
+	fi
+
+
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+	CUR_DIR="${PWD}";
+
+
+	while true;
+	do
+		DIR="${PWD}";
+		cd ..;
+
+# is git repo?
+		$(git status &> /dev/null);
+		if [ "${?}" != "0" ];
+		then
+			echo "${DIR}";
+			cd -- "${CUR_DIR}";
+			break;
+		fi
+
+	done
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_cd()
+{
+	local STATUS;
+	local GIT_PWD;
+
+
+	if [ "$(which git)" == "" ];
+	then
+		return 0;
+	fi
+
+
+	GIT_PWD="$(git_pwd)";
+	if [ "${GIT_PWD}" == "" ];
+	then
+		return 0;
+	fi
+
+
+	cd -- "${GIT_PWD}";
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_gc()
+{
+	local STATUS;
+	local COL1;
+	local COL2;
+	local OLD;
+	local NEW;
+	local P;
+
+
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which echo)" == "" ] || [ "$(which du)" == "" ];
+	then
+		return 0;
+	fi
+
+
+# is git repo?
+	$(git branch &> /dev/null); # git status is not work in .git dir
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+	OLD=$(du -sb | { read COL1 COL2; echo ${COL1}; });
+
+
+	git gc --aggressive --prune=now &> /dev/null;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	NEW=$(du -sb | { read COL1 COL2; echo ${COL1}; });
+
+
+	(( P = 0 - (100 - (NEW / ( OLD / 100 ))) ));
+
+
+	echo "${OLD} -> ${NEW} (${P}%)";
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_merge()
+{
+	local STATUS;
+
+
+	if [ "$(which git)" == "" ];
+	then
+		return 0;
+	fi
+
+
+	if [ "${1}" == "" ];
+	then
+		echo "ERROR: missing branch name";
+		return 0;
+	fi
+
+
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+	echo "git merge --no-ff -m 'merge branch \"${1}\"' ${1};";
+	git merge --no-ff -m "merge branch \"${1}\"" ${1};
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_tag()
+{
+	local STATUS;
+	local TAG="${1}";
+	local MSG="${2}";
+
+
+	if [ "$(which git)" == "" ];
+	then
+		return 0;
+	fi
+
+
+	if [ "${TAG}" == "" ];
+	then
+		echo "ERROR: missing tag name";
+		return 0;
+	fi
+
+
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+# tag
+	if [ "${MSG}" == "" ];
+	then
+		echo "git tag ${TAG};";
+		git tag ${TAG};
+		STATUS="${?}";
+	else
+		echo "git tag -a ${TAG} -m ${MSG};";
+		git tag -a ${TAG} -m ${MSG};
+		STATUS="${?}";
+	fi
+
+
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+# push
+	echo "git push --set-upstream origin ${TAG} --quiet;";
+	git push --set-upstream origin ${TAG} --quiet;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_pull()
+{
+	local STATUS;
+	local BRANCH;
+	local FLAG_MODIFY;
+	local COL1;
+	local REMOTE_LAST_COMMIT_HASH;
+
+
+	if [ "$(which git)" == "" ] || [ "$(which cat)" == "" ] || [ "$(which sed)" == "" ];
+	then
+		return 0;
+	fi
+
+
+	if [ "$(git_url)" == "" ];
+	then
+		echo "ERROR: remote repository is not set";
+		return 0;
+	fi
+
+
+# get branch name
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		if [ -e .git/HEAD ];
+		then
+			BRANCH=$(cat .git/HEAD | sed -e 's/ref:\ refs\/heads\///g');
+			STATUS="${?}";
+			if [ "${STATUS}" != "0" ];
+			then
+				return "${STATUS}";
+			fi
+		fi
+	fi
+	if [ "${BRANCH}" == "" ];
+	then
+		return 0;
+	fi
+
+
+# get local commit
+	LOCAL_LAST_COMMIT_HASH="$(git rev-parse HEAD 2>&1)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		LOCAL_LAST_COMMIT_HASH="1";
+	fi
+
+
+# fetch
+	echo "git fetch --append --prune --quiet;";
+	git fetch --append --prune --quiet;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+# is current branch came from remote repo?
+	FLAG_REMOTE_BRACH="$(git show-ref | grep remotes | grep -v HEAD | grep ${BRANCH} | wc -l | { read COL1; echo ${COL1}; })";
+
+
+# pull only if branch came from remote repo
+	if [ "${FLAG_REMOTE_BRACH}" == "0" ];
+	then
+		return 0;
+	fi
+
+
+# get remote commit
+	REMOTE_LAST_COMMIT_HASH="$(git rev-parse remotes/origin/${BRANCH} 2>&1)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		REMOTE_LAST_COMMIT_HASH="1";
+	fi
+
+
+# pull
+	echo "git pull origin ${BRANCH} --quiet;";
+	git pull origin "${BRANCH}" --quiet;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+# cmp old and new commit
+	if [ "${REMOTE_LAST_COMMIT_HASH}" != "${LOCAL_LAST_COMMIT_HASH}" ];
+	then
+		echo " - >>> pull data";
+	fi
+
+
+# update submodules
+	echo "git submodule update --init --recursive --quiet;";
+	git submodule update --init --recursive --quiet;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_push()
+{
+	local STATUS;
+	local BRANCH;
+
+
+	if [ "$(which git)" == "" ] || [ "$(which cat)" == "" ] || [ "$(which sed)" == "" ];
+	then
+		return 0;
+	fi
+
+
+	if [ "$(git_url)" == "" ];
+	then
+		echo "ERROR: remote repository is not set";
+		return 0;
+	fi
+
+
+# get branch name
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		if [ -e .git/HEAD ];
+		then
+			BRANCH=$(cat .git/HEAD | sed -e 's/ref:\ refs\/heads\///g');
+			STATUS="${?}";
+			if [ "${STATUS}" != "0" ];
+			then
+				return "${STATUS}";
+			fi
+		fi
+	fi
+	if [ "${BRANCH}" == "" ];
+	then
+		return 0;
+	fi
+
+
+# get remote commit
+	local REMOTE_LAST_COMMIT_HASH;
+	REMOTE_LAST_COMMIT_HASH="$(git rev-parse remotes/origin/${BRANCH} 2>&1)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		REMOTE_LAST_COMMIT_HASH="1";
+	fi
+
+
+# get local commit
+	local LOCAL_LAST_COMMIT_HASH;
+	LOCAL_LAST_COMMIT_HASH="$(git rev-parse HEAD 2>&1)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		REMOTE_LAST_COMMIT_HASH="2";
+	fi
+
+
+# push
+	echo "git push --set-upstream origin ${BRANCH} --quiet;";
+	git push --set-upstream origin "${BRANCH}" --quiet;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+# cmp remote and local commit
+	if [ "${REMOTE_LAST_COMMIT_HASH}" != "${LOCAL_LAST_COMMIT_HASH}" ];
+	then
+		echo " - <<< push data";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_commit()
+{
+	local STATUS;
+	local LOCAL_TMPDIR="/tmp";
+	local TMP;
+	local COL1;
+	local GIT_STATUS="";
+
+
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which mktemp)" == "" ] || [ "$(which rm)" == "" ] || [ "$(which wc)" == "" ];
+	then
+		return 0;
+	fi
+
+
+# is git repo?
+	$(git status &> /dev/null);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+# create temp dir and files
+	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
+	then
+		LOCAL_TMPDIR="${TMPDIR}";
+	fi
+
+
+	TMP=$(mktemp "${LOCAL_TMPDIR}"/gitbash.XXXXXXXXXX);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+	while true;
+	do
+		git status --porcelain 2> /dev/null > "${TMP}";
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			rm -rf -- "${TMP}";
+			return "${STATUS}";
+		fi
+
+		if [ "$(grep -v '^??' "${TMP}" | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
+		then
+			GIT_STATUS="(+)";
+			break;
+		fi
+
+		break;
+	done
+
+
+	rm -rf -- "${TMP}";
+
+
+	if [ "${GIT_STATUS}" == "" ];
+	then
+		echo " - there is nothing to commit";
+		return 0;
+	fi
+
+
+	if [ "${1}" == "" ];
+	then
+		echo "git commit --all --message='update' --quiet;";
+		git commit --all --message='update' --quiet;
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			return "${STATUS}";
+		fi
+	else
+		echo "git commit --all --message=\"${1}\";";
+		git commit --all --message="${1}";
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			return "${STATUS}";
+		fi
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_sync()
+{
+	local STATUS;
+
+
+	git_pull;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	git_push;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_flush()
+{
+	local STATUS;
+
+
+	git_commit "${1}";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	git_sync;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_clone()
+{
+	local STATUS;
+	local URL;
+	local DIR;
+
+
+	URL="${1}";
+	DIR="${2}";
+
+
+	if [ "${URL}" == "" ];
+	then
+		return 0;
+	fi
+
+
+	if [ "${DIR}" == "" ];
+	then
+		DIR="${URL}";
+		DIR="${DIR%.git}";
+		DIR="${DIR%.git/}";
+		DIR="${DIR%/}";
+		DIR="${DIR/*\//}";
+
+
+		echo "git clone \"${URL}\" --quiet;";
+		git clone "${URL}" --quiet;
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			return "${STATUS}";
+		fi
+	else
+		echo "git clone \"${URL}\" \"${DIR}\" --quiet;";
+		git clone "${URL}" "${DIR}" --quiet;
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			return "${STATUS}";
+		fi
+	fi
+
+
+	echo "cd -- \"${DIR}\";";
+	cd -- "${DIR}";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	git_pull;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function gitbash()
+{
+	local STATUS;
+
+
+	if [ "$(which cat)" == "" ];
+	then
+		return 0;
+	fi
+
+
+	if [ -e ~/.config/gitbash/README ];
+	then
+		cat ~/.config/gitbash/README;
+		return 0;
+	fi
+
+
+	if [ -e ~/.config/gitbash.git/README ];
+	then
+		cat ~/.config/gitbash.git/README;
+		return 0;
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function gitbash_help()
+{
+	local STATUS;
+
+
+	gitbash;
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function gitbash_update()
+{
+	local STATUS;
+	local CUR_PWD="${PWD}";
+
+
+	if [ -e ~/.config/gitbash ];
+	then
+		cd ~/.config/gitbash;
+	fi
+
+
+	if [ -e ~/.config/gitbash.git ];
+	then
+		cd ~/.config/gitbash.git;
+	fi
+
+
+	git_pull;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	cd -- "${CUR_PWD}";
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function gitbash_get_branch()
+{
+	local STATUS;
+	local BRANCH;
+	local LOCAL_TMPDIR="/tmp";
+	local TMP;
+	local GIT_STATUS_SUBMODULE="";
+	local GIT_STATUS="";
+	local A;
+	local B;
+	local C;
+	local TRASH;
+
+
+	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which mktemp)" == "" ] || [ "$(which rm)" == "" ] || [ "$(which cat)" == "" ] || [ "$(which echo)" == "" ];
+	then
+		return 0;
+	fi
+
+
+# create temp dir and files
+	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
+	then
+		LOCAL_TMPDIR="${TMPDIR}";
+	fi
+
+
+# make tmp file
+	TMP=$(mktemp "${LOCAL_TMPDIR}"/gitbash.XXXXXXXXXX);
+	if [ "${?}" != "0" ];
+	then
+		return 0;
+	fi
+
+
+# get branch name
+	git branch 2> /dev/null > "${TMP}";
+	if [ "${?}" != "0" ];
+	then
+		rm -rf -- "${TMP}";
+		return 0;
+	fi
+	BRANCH=$(grep '^\*' "${TMP}" | sed -e 's/^\*\ //g');
+
+
+	if [ "${BRANCH}" == "" ];
+	then
+		if [ -e .git/HEAD ];
+		then
+			BRANCH=$(cat .git/HEAD | sed -e 's/ref:\ refs\/heads\///g');
+		fi
+	fi
+
+
+	if [ "${BRANCH}" == "" ];
+	then
+		BRANCH="?";
+	fi
+
+
+# get repo status
+	git status --porcelain=v2 2> /dev/null > "${TMP}";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		GIT_STATUS="(?)";
+	fi
+
+
+	if [ "${GIT_STATUS}" == "" ];
+	then
+		while read -r A B C TRASH;
+		do
+
+			if [ "${A}" == "?" ];
+			then
+
+				if [ "${GIT_STATUS}" == "" ];
+				then
+					if [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+					then
+						GIT_STATUS="-";
+					fi
+				fi
+
+			fi
+
+
+			if [ "${A}" != "?" ];
+			then
+
+				if [ "${C}" == "N..." ];
+				then
+					GIT_STATUS="+";
+				fi
+
+				if [ "${C}" != "N..." ];
+				then
+
+					if [ "${C}" == "S..U" ];
+					then
+						if [ "${GIT_STATUS_SUBMODULE}" == "" ];
+						then
+							if [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+							then
+								GIT_STATUS_SUBMODULE="s";
+							fi
+						fi
+					fi
+
+					if [ "${C}" != "S..U" ];
+					then
+						GIT_STATUS_SUBMODULE="S";
+					fi
+
+				fi
+
+			fi
+
+		done < "${TMP}";
+
+
+		if [ "${GIT_STATUS_SUBMODULE}" != "" ] || [ "${GIT_STATUS}" != "" ];
+		then
+			GIT_STATUS="(${GIT_STATUS_SUBMODULE}${GIT_STATUS})";
+		fi
+	fi
+
+
+	rm -rf -- "${TMP}";
+
+
+	if [ "${GITBASH_FLAG_COLOR}" == "true" ];
+	then
+		echo -en "\033[32m";
+	fi
+
+	echo -en "[";
+	echo -en "${GIT_STATUS}";
+	echo -en "git::${BRANCH}";
+	echo -en "]";
+
+	if [ "${GITBASH_FLAG_COLOR}" != "false" ];
+	then
+		echo -en "\033[0m";
+	fi
+
+	echo -en " ";
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function gitbash_get_status()
+{
+	local SHELL_STATUS="${?}";
+	local STATUS;
+	local RESULT;
+
+
+	if [ "${SHELL_STATUS}" != "0" ] && [ "${GITBASH_FLAG_SHELL_STATUS_ENABLE}" != "false" ];
+	then
+		RESULT+="{${SHELL_STATUS}} ";
+	fi
+
+	if [ "$(which date)" != "" ] && [ "${GITBASH_FLAG_DATE_ENABLE}" == "true" ];
+	then
+		RESULT+="$(date +'%Y%m%d%H%M%S') ";
+	fi
+
+	RESULT+="$(gitbash_get_branch)";
+
+	echo "${RESULT}${USER}@${HOSTNAME}";
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# GITBASH_FLAG_COLOR='false';
+# GITBASH_FLAG_UNTRACKED='true';
+# GITBASH_FLAG_SHELL_STATUS_ENABLE='true';
+# GITBASH_FLAG_DATE_ENABLE='false';
+
+while true;
+do
+
+	if [ "${USER}" == "root" ];
+	then
+		export PS1='$(gitbash_get_status):\w# ';
+		break;
+	fi
+
+	if [ "${HOME}" == "/root" ];
+	then
+		export PS1='$(gitbash_get_status):\w# ';
+		break;
+	fi
+
+	export PS1='$(gitbash_get_status):\w$ ';
+	break;
+
+done
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#

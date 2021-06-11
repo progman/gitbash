@@ -1,0 +1,50 @@
+Git for bash
+
+How do you install it?
+
+	mkdir -m 0700 ~/.config &> /dev/null;
+	git clone https://github.com/progman/gitbash.git ~/.config/gitbash;
+	echo "source ~/.config/gitbash/gitbash;" >> ~/.bashrc;
+
+How do you use it?
+
+	Run gitbash for help or just enter into any git repository
+
+Functions of gitbash
+
+	git_url [URL]        - get/set remote origin url
+	git_commit [MESSAGE] - git commit -a
+	git_pull             - git pull current branch
+	git_push             - git push current branch
+	git_sync             - run git_pull and git_push
+	git_flush [MESSAGE]  - run git_commit and git_sync
+	git_clone [URL]      - run git clone and change dir and git_pull
+	git_merge BRANCH     - git merge --no-ff BRANCH
+	git_tag TAG [MSG]    - git tag -a TAG -m MSG & git push TAG
+	git_gc               - git gc --aggressive --prune=now
+	git_pwd              - get root dir
+	git_cd               - cd to root dir
+	git_add_all          - add all files
+	gitbash_update       - update gitbash
+	gitbash              - this message
+
+How do you setup Git?
+
+	git config --global user.name "progman";
+	git config --global user.email gnuplanet@gmail.com;
+	git config --global color.branch auto;
+	git config --global color.diff auto;
+	git config --global color.interactive auto;
+	git config --global color.status auto;
+	git config --global interactive.diffFilter diff-highlight
+
+How do you create ssh keys?
+
+	ssh-keygen -t rsa -b 4096;
+
+How do you make a first push into Git repo?
+
+	cd gitbash;
+	git_url git@github.com:progman/gitbash.git;
+	git_push;
+
