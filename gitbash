@@ -1,7 +1,7 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # 0.7.4
-# Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+# Angel Siblani <84080393+angelseblani@users.noreply.github.com>, http://https://github.com/angelseblani/gitbash/edit/master/gitbash
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
 # $ git clone https://github.com/progman/gitbash.git ~/.config/gitbash;
