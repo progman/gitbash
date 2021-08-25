@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.7.4
+# 0.7.5
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -14,7 +14,7 @@ function git_url()
 	local COL1;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which wc)" == "" ] || [ "$(which echo)" == "" ];
+	if [ "$(command -v git)" == "" ] || [ "$(command -v grep)" == "" ] || [ "$(command -v sed)" == "" ] || [ "$(command -v wc)" == "" ] || [ "$(command -v echo)" == "" ];
 	then
 		return 0;
 	fi
@@ -73,7 +73,7 @@ function git_add_all()
 	local DIR;
 
 
-	if [ "$(which git)" == "" ];
+	if [ "$(command -v git)" == "" ];
 	then
 		return 0;
 	fi
@@ -117,7 +117,7 @@ function git_pwd()
 	local DIR;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which echo)" == "" ];
+	if [ "$(command -v git)" == "" ] || [ "$(command -v echo)" == "" ];
 	then
 		return 0;
 	fi
@@ -160,7 +160,7 @@ function git_cd()
 	local GIT_PWD;
 
 
-	if [ "$(which git)" == "" ];
+	if [ "$(command -v git)" == "" ];
 	then
 		return 0;
 	fi
@@ -189,7 +189,7 @@ function git_gc()
 	local P;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which echo)" == "" ] || [ "$(which du)" == "" ];
+	if [ "$(command -v git)" == "" ] || [ "$(command -v grep)" == "" ] || [ "$(command -v echo)" == "" ] || [ "$(command -v du)" == "" ];
 	then
 		return 0;
 	fi
@@ -231,7 +231,7 @@ function git_merge()
 	local STATUS;
 
 
-	if [ "$(which git)" == "" ];
+	if [ "$(command -v git)" == "" ];
 	then
 		return 0;
 	fi
@@ -271,7 +271,7 @@ function git_tag()
 	local MSG="${2}";
 
 
-	if [ "$(which git)" == "" ];
+	if [ "$(command -v git)" == "" ];
 	then
 		return 0;
 	fi
@@ -333,7 +333,7 @@ function git_pull()
 	local REMOTE_LAST_COMMIT_HASH;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which cat)" == "" ] || [ "$(which sed)" == "" ];
+	if [ "$(command -v git)" == "" ] || [ "$(command -v cat)" == "" ] || [ "$(command -v sed)" == "" ];
 	then
 		return 0;
 	fi
@@ -442,7 +442,7 @@ function git_push()
 	local BRANCH;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which cat)" == "" ] || [ "$(which sed)" == "" ];
+	if [ "$(command -v git)" == "" ] || [ "$(command -v cat)" == "" ] || [ "$(command -v sed)" == "" ];
 	then
 		return 0;
 	fi
@@ -525,7 +525,7 @@ function git_commit()
 	local GIT_STATUS="";
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which mktemp)" == "" ] || [ "$(which rm)" == "" ] || [ "$(which wc)" == "" ];
+	if [ "$(command -v git)" == "" ] || [ "$(command -v grep)" == "" ] || [ "$(command -v mktemp)" == "" ] || [ "$(command -v rm)" == "" ] || [ "$(command -v wc)" == "" ];
 	then
 		return 0;
 	fi
@@ -723,7 +723,7 @@ function gitbash()
 	local STATUS;
 
 
-	if [ "$(which cat)" == "" ];
+	if [ "$(command -v cat)" == "" ];
 	then
 		return 0;
 	fi
@@ -803,7 +803,7 @@ function gitbash_get_branch()
 	local TRASH;
 
 
-	if [ "$(which git)" == "" ] || [ "$(which grep)" == "" ] || [ "$(which sed)" == "" ] || [ "$(which mktemp)" == "" ] || [ "$(which rm)" == "" ] || [ "$(which cat)" == "" ] || [ "$(which echo)" == "" ];
+	if [ "$(command -v git)" == "" ] || [ "$(command -v grep)" == "" ] || [ "$(command -v sed)" == "" ] || [ "$(command -v mktemp)" == "" ] || [ "$(command -v rm)" == "" ] || [ "$(command -v cat)" == "" ] || [ "$(command -v echo)" == "" ];
 	then
 		return 0;
 	fi
@@ -954,7 +954,7 @@ function gitbash_get_status()
 		RESULT+="{${SHELL_STATUS}} ";
 	fi
 
-	if [ "$(which date)" != "" ] && [ "${GITBASH_FLAG_DATE_ENABLE}" == "true" ];
+	if [ "$(command -v date)" != "" ] && [ "${GITBASH_FLAG_DATE_ENABLE}" == "true" ];
 	then
 		RESULT+="$(date +'%Y%m%d%H%M%S') ";
 	fi
