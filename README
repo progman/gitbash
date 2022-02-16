@@ -40,7 +40,7 @@ How do you setup Git?
 
 How do you create ssh keys?
 
-	ssh-keygen -t rsa -b 4096;
+	ssh-keygen -t rsa -b 4096 -C "other_user@other_host";
 
 How do you make a first push into Git repo?
 
