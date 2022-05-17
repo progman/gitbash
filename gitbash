@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.7.6
+# 0.7.7
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -274,7 +274,8 @@ function git_merge()
 
 
 # checkout branch
-	git checkout ${1};
+    echo "git checkout ${1} --quiet;";
+	git checkout ${1} --quiet;
 
 
 # git pull
@@ -287,7 +288,8 @@ function git_merge()
 
 
 # checkout branch
-	git checkout ${BRANCH};
+    echo "git checkout ${BRANCH} --quiet;";
+	git checkout ${BRANCH} --quiet;
 
 
 	echo "git merge --no-ff -m 'merge branch \"${1}\"' ${1};";
