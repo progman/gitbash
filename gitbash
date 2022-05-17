@@ -229,6 +229,7 @@ function git_gc()
 function git_merge()
 {
 	local STATUS;
+	local BRANCH;
 
 
 	if [ "$(command -v git)" == "" ];
@@ -250,6 +251,43 @@ function git_merge()
 	then
 		return 0;
 	fi
+
+
+# get current branch name
+	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+	if [ "${BRANCH}" == "" ];
+	then
+		return 0;
+	fi
+
+
+# check branch name in local branch list
+	if [ "$(git branch -l | grep ${1} | wc -l | { read COL1; echo ${COL1}; })" == "0" ];
+	then
+		return 0;
+	fi
+
+
+# checkout branch
+	git checkout ${1};
+
+
+# git pull
+	git_pull;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+# checkout branch
+	git checkout ${BRANCH};
 
 
 	echo "git merge --no-ff -m 'merge branch \"${1}\"' ${1};";
