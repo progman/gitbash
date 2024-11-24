@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.7.7
+# 0.7.8
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -386,27 +386,6 @@ function git_pull()
 	fi
 
 
-# get branch name
-	BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)";
-	STATUS="${?}";
-	if [ "${STATUS}" != "0" ];
-	then
-		if [ -e .git/HEAD ];
-		then
-			BRANCH=$(cat .git/HEAD | sed -e 's/ref:\ refs\/heads\///g');
-			STATUS="${?}";
-			if [ "${STATUS}" != "0" ];
-			then
-				return "${STATUS}";
-			fi
-		fi
-	fi
-	if [ "${BRANCH}" == "" ];
-	then
-		return 0;
-	fi
-
-
 # get local commit
 	LOCAL_LAST_COMMIT_HASH="$(git rev-parse HEAD 2>&1)";
 	STATUS="${?}";
@@ -426,19 +405,31 @@ function git_pull()
 	fi
 
 
-# is current branch came from remote repo?
-	FLAG_REMOTE_BRACH="$(git show-ref | grep remotes | grep -v HEAD | grep ${BRANCH} | wc -l | { read COL1; echo ${COL1}; })";
-
-
-# pull only if branch came from remote repo
-	if [ "${FLAG_REMOTE_BRACH}" == "0" ];
+# get remote branch path like origin/xxx or origin/feature/yyy
+	REMOTE_BRANCH_PATH="$(git rev-parse --abbrev-ref --symbolic @{u} 2>/dev/null)";
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
 	then
+		echo "WARNING: current branch is not link to remote branch";
+		return 0;
+	fi
+	if [ "${REMOTE_BRANCH_PATH}" == "" ];
+	then
+		echo "WARNING: current branch is not link to remote branch";
 		return 0;
 	fi
 
 
+# get origin
+	ORIGIN="$(echo ${REMOTE_BRANCH_PATH} | sed -e 's/\/.*//g')";
+
+
+# get branch
+	BRANCH="$(echo ${REMOTE_BRANCH_PATH} | sed 's|^[^/]*/||')";
+
+
 # get remote commit
-	REMOTE_LAST_COMMIT_HASH="$(git rev-parse remotes/origin/${BRANCH} 2>&1)";
+	REMOTE_LAST_COMMIT_HASH="$(git rev-parse remotes/${ORIGIN}/${BRANCH} 2>&1)";
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
@@ -447,8 +438,8 @@ function git_pull()
 
 
 # pull
-	echo "git pull origin ${BRANCH} --quiet;";
-	git pull origin "${BRANCH}" --quiet;
+	echo "git pull ${ORIGIN} ${BRANCH} --quiet;";
+	git pull "${ORIGIN}" "${BRANCH}" --quiet;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
