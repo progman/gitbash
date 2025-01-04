@@ -37,6 +37,7 @@ How do you setup Git?
 	git config --global color.interactive auto;
 	git config --global color.status auto;
 	git config --global interactive.diffFilter diff-highlight
+	git config --global --add safe.directory '*'
 
 How do you create ssh keys?
 
