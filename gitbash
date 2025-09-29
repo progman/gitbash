@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.7.8
+# 0.7.9
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #
 # $ mkdir -m 0700 ~/.config &> /dev/null;
@@ -992,6 +992,11 @@ function gitbash_get_status()
 
 	RESULT+="$(gitbash_get_branch)";
 
+	if [ "${EUID}" == "0" ];
+	then
+		export USER='root';
+	fi
+
 	echo "${RESULT}${USER}@${HOSTNAME}";
 
 
@@ -1006,13 +1011,7 @@ function gitbash_get_status()
 while true;
 do
 
-	if [ "${USER}" == "root" ];
-	then
-		export PS1='$(gitbash_get_status):\w# ';
-		break;
-	fi
-
-	if [ "${HOME}" == "/root" ];
+	if [ "${EUID}" == "0" ];
 	then
 		export PS1='$(gitbash_get_status):\w# ';
 		break;
