@@ -39,6 +39,7 @@ How do you setup Git?
 	git config --global interactive.diffFilter diff-highlight
 	git config --global pull.rebase false
 	git config --global --add safe.directory '*'
+	git config --global init.defaultBranch main
 
 How do you create ssh keys?
 
